@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Velour - מחשבון רווחיות</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-hover: #222531;
+    --border: #2a2d3a;
+    --text: #e4e4e7;
+    --text-muted: #8b8d98;
+    --accent: #8b5cf6;
+    --accent-light: #a78bfa;
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.1);
+    --yellow: #eab308;
+    --yellow-bg: rgba(234,179,8,0.1);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.1);
+    --blue: #3b82f6;
+    --blue-bg: rgba(59,130,246,0.1);
+  }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #252838 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-light), #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .header-meta .rate-input {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .header-meta input {
+    width: 60px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: 'Heebo';
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 14px 24px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent-light); border-bottom-color: var(--accent); }
+
+  .content { padding: 24px 32px; max-width: 1400px; margin: 0 auto; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--accent-light);
+  }
+
+  .card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .form-group input, .form-group select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'Heebo';
+    font-size: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    background: var(--bg);
+    padding: 10px 14px;
+    text-align: right;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr:hover { background: rgba(139,92,246,0.03); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+
+  .stat-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: center;
+  }
+
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 4px 0;
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .stat-card.green .value { color: var(--green); }
+  .stat-card.red .value { color: var(--red); }
+  .stat-card.yellow .value { color: var(--yellow); }
+  .stat-card.blue .value { color: var(--blue); }
+  .stat-card.accent .value { color: var(--accent-light); }
+
+  .btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-family: 'Heebo';
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent-light); }
+
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  .btn-danger { background: var(--red); }
+
+  .expense-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .expense-row input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-family: 'Heebo';
+    font-size: 13px;
+  }
+
+  .expense-row input.name { flex: 2; }
+  .expense-row input.amount { flex: 1; text-align: center; }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    color: var(--red);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .remove-btn:hover { background: var(--red-bg); }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-top: 12px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .scenario-table td.highlight-green { background: var(--green-bg); color: var(--green); font-weight: 600; }
+  .scenario-table td.highlight-yellow { background: var(--yellow-bg); color: var(--yellow); font-weight: 600; }
+  .scenario-table td.highlight-red { background: var(--red-bg); color: var(--red); font-weight: 600; }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 10px 14px;
+    background: rgba(139,92,246,0.05);
+    border-radius: 8px;
+    border-right: 3px solid var(--accent);
+    margin-top: 12px;
+  }
+
+  .agent-winner {
+    background: var(--green-bg) !important;
+  }
+
+  .pnl-row-header { font-weight: 700; background: var(--bg); }
+  .pnl-positive { color: var(--green); font-weight: 600; }
+  .pnl-negative { color: var(--red); font-weight: 600; }
+
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+  .progress-bar {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+
+  /* ===== MOBILE RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .content { padding: 12px 8px; }
+    .header { padding: 12px 16px; flex-direction: column; gap: 8px; text-align: center; }
+    .header h1 { font-size: 20px; }
+    .header-meta { justify-content: center; flex-wrap: wrap; gap: 10px; font-size: 12px; }
+
+    .tabs { gap: 0; padding: 0; }
+    .tab { padding: 10px 12px; font-size: 12px; }
+
+    .card { padding: 14px 12px; margin-bottom: 12px; border-radius: 10px; }
+    .card h2 { font-size: 15px; margin-bottom: 10px; }
+    .card h3 { font-size: 14px; }
+
+    table { font-size: 12px; display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    th, td { padding: 7px 8px; white-space: nowrap; }
+    th { font-size: 11px; }
+
+    .stat-card { padding: 12px 10px; }
+    .stat-card .value { font-size: 22px; }
+
+    .note { font-size: 11px; padding: 8px 10px; }
+
+    .btn { padding: 7px 14px; font-size: 12px; }
+    .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+    .expense-row { flex-wrap: wrap; }
+    .expense-row input.name { flex: 1 1 100%; }
+
+    .form-group input, .form-group select { padding: 8px 10px; font-size: 13px; }
+
+    .flex-between { flex-direction: column; gap: 10px; align-items: stretch; }
+
+    .total-row { font-size: 14px; flex-direction: column; gap: 4px; text-align: center; }
+
+    /* Bundle builder mobile */
+    #bundle-builder-table { min-width: 500px; }
+    #upsell-table { min-width: 550px; }
+    #bundle-results { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+
+    /* P&L table */
+    .pnl-row-header { font-size: 12px; }
+  }
+
+  @media (max-width: 480px) {
+    .header h1 { font-size: 18px; }
+    .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab { padding: 8px 10px; font-size: 11px; min-width: max-content; }
+    .content { padding: 8px 6px; }
+    .card { padding: 12px 10px; }
+    table { font-size: 11px; }
+    th, td { padding: 6px; }
+    #bundle-results { grid-template-columns: 1fr !important; }
+    .stat-card .value { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Velour — מחשבון רווחיות</h1>
+  <div class="header-meta">
+    <div class="rate-input">
+      <span>שער דולר:</span>
+      <input type="number" id="exchangeRate" value="3.65" step="0.01" onchange="recalcAll()">
+      <span>₪</span>
+    </div>
+    <div class="rate-input">
+      <span>מע"מ:</span>
+      <input type="number" id="vatRate" value="18" step="1" onchange="recalcAll()">
+      <span>%</span>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('settings')">⚙️ הגדרות</div>
+  <div class="tab" onclick="switchTab('fixed')">🏢 הוצאות קבועות</div>
+  <div class="tab" onclick="switchTab('agents')">🤝 השוואת סוכנים</div>
+  <div class="tab" onclick="switchTab('calc')">🧮 מחשבוש רווחיות</div>
+  <div class="tab" onclick="switchTab('scenarios')">📊 תרחישים</div>
+  <div class="tab" onclick="switchTab('pnl')">📋 דוח רווח/הפסד</div>
+  <div class="tab" onclick="switchTab('market')">🏪 מחקר שוק</div>
+</div>
+
+<div class="content">
+
+  <!-- TAB: Settings -->
+  <div id="tab-settings" class="tab-content active">
+    <div class="grid-2">
+      <div class="card">
+        <h2>הגדרות כלליות</h2>
+        <div class="form-group">
+          <label>שער דולר (₪)</label>
+          <input type="number" id="s_exchange" value="3.65" step="0.01" onchange="document.getElementById('exchangeRate').value=this.value; recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>אחוז מע"מ (%)</label>
+          <input type="number" id="s_vat" value="18" step="1" onchange="document.getElementById('vatRate').value=this.value; recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>סוג עוסק</label>
+          <select id="s_business_type">
+            <option value="murshe">עוסק מורשה</option>
+            <option value="patur">עוסק פטור</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>מדרגת מס הכנסה (%)</label>
+          <input type="number" id="s_income_tax" value="0" step="1" onchange="recalcAll()">
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>הוצאות משתנות (אחוזים)</h2>
+        <div class="form-group">
+          <label>עמלת סליקה / PayPlus (%)</label>
+          <input type="number" id="s_cc_fee" value="2.5" step="0.1" onchange="recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>אחוז החזרות (%)</label>
+          <input type="number" id="s_return_rate" value="2" step="0.5" onchange="recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>עלות אריזה ליחידה (₪)</label>
+          <input type="number" id="s_packaging" value="0" step="0.5" onchange="recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>שילוח ללקוח קצה (₪)</label>
+          <input type="number" id="s_local_shipping" value="0" step="1" onchange="recalcAll()">
+        </div>
+        <div class="note">💡 בדרופשיפינג השילוח ללקוח כלול במחיר הסוכן (DDP). אם תעבור למלאי מקומי, תוסיף כאן את עלות השליח הישראלי.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Fixed Costs -->
+  <div id="tab-fixed" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h2>הוצאות קבועות חודשיות</h2>
+        <button class="btn btn-sm" onclick="addFixedExpense()">+ הוסף הוצאה</button>
+      </div>
+      <div style="margin-top:16px">
+        <div id="fixed-expenses">
+          <!-- populated by JS -->
+        </div>
+        <div class="total-row">
+          <span>סה"כ הוצאות קבועות חודשיות</span>
+          <span id="total-fixed">₪0</span>
+        </div>
+      </div>
+      <div class="note">💡 הוסף כאן את כל ההוצאות החודשיות הקבועות שלך: שופיפיי, אפליקציות, PayPlus חודשי, קאנבה, מייל עסקי, דומיין וכו'</div>
+    </div>
+
+    <div class="card">
+      <h2>תקציב שיווק חודשי</h2>
+      <div class="grid-3">
+        <div class="form-group">
+          <label>תקציב שיווק חודשי (₪)</label>
+          <input type="number" id="monthly_marketing" value="4000" step="500" onchange="recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>עלות רכישת לקוח משוערת (₪)</label>
+          <input type="number" id="cac" value="80" step="5" onchange="recalcAll()">
+        </div>
+        <div class="form-group">
+          <label>מכירות משוערות בחודש (יחידות)</label>
+          <input type="number" id="monthly_units" value="50" step="5" onchange="recalcAll()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Agent Comparison -->
+  <div id="tab-agents" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h2>השוואת סוכנים - סט מצעים</h2>
+        <div>
+          <select id="agent_product" onchange="recalcAgents()" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-family:'Heebo';font-size:13px;">
+            <option value="sheets_small">מצעים 90×200</option>
+            <option value="sheets_medium" selected>מצעים 160×200</option>
+            <option value="sheets_large">מצעים 180×200</option>
+            <option value="blanket_small">שמיכת קיץ 150×200</option>
+            <option value="blanket_large">שמיכת קיץ 200×220</option>
+            <option value="pillow">כרית Memory Foam</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto; margin-top:16px;">
+        <table id="agent-table">
+          <thead>
+            <tr>
+              <th6סוכן</th>
+              <th>מחיר מזצר ($)</th>
+              <th>שילוח Pickup ($)</th>
+              <th>שילוח Door ($)</th>
+              <th>סה"כ Pickup ($)</th>
+              <th>סה"כ Door ($)</th>
+              <th>סה"כ Pickup (₪)</th>
+              <th>סה"כ Door (₪)</th>
+              <th>DDP</th>
+              <th>זמן אספקה</th>
+            </tr>
+          </thead>
+          <tbody id="agent-tbody">
+          </tbody>
+        </table>
+      </div>
+      <div class="note" id="agent-note"></div>
+    </div>
+
+    <div class="card">
+      <h2>תעריפי שילוח ידועים</h2>
+      <table>
+        <thead>
+          <tr>
+            <th6סוכן</th>
+            <th>מחיר לק"ג (Pickup)</th>
+            <th>מחיר לק"ג (D2D)</th>
+            <th>עלות קבועה לחבילה</th>
+            <th>שיטת שילוח</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Zoey (ZY)</td>
+            <td>$17.23</td>
+            <td>$18.00</td>
+            <td>$4.00 / $7.85</td>
+            <td>4PX, Yanwen</td>
+          </tr>
+          <tr>
+            <td>Felix (ZY)</td>
+            <td>~$17-18</td>
+            <td>~$18-19</td>
+            <td>כלול</td>
+            <td>4PX (8-15 days)</td>
+          </tr>
+          <tr>
+            <td>Zach (Unify)</td>
+            <td>—</td>
+            <td>~$18-20</td>
+            <td>כלול</td>
+            <td>8-15 days</td>
+          </tr>
+          <tr>
+            <td>Ann (ZY)</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td>4PX, Yanwen (6-12 days)</td>
+          </tr>
+          <tr style="color:var(--accent-light)">
+            <td><b>ממוצע שוק</b></td>
+            <td colspan="4">$3-6/ק"ג (מטען אוויר 45+ ק"ג) | $17-18/ק"ג (חבילה בודדת DDP)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB: Profitability Calculator -->
+  <div id="tab-calc" class="tab-content">
+    <div class="card">
+      <h2>מחשבון רווחיות למוצר</h2>
+      <div class="grid-3">
+        <div class="form-group">
+          <label>מעיר מכירה (₪)</label>
+          <input type="number" id="c_sell_price" value="399" step="10" onchange="recalcProfit()">
+        </div>
+        <div class="form-group">
+          <label>עלות מוצר + שילוח ($)</label>
+          <input type="number" id="c_landed_usd" value="97" step="1" onchange="recalcProfit()">
+        </div>
+        <div class="form-group">
+          <label>סוכן</label>
+          <select id="c_agent" onchange="fillFromAgent()">
+            <option value="manual">הזנה ידנית</option>
+            <option value="felix">פליקס (Pickup)</option>
+            <option value="felix_door">פליקס (Door)</option>
+            <option value="zach">זאק (Door)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-4" id="profit-stats">
+      <div class="stat-card" id="sc-landed">
+        <div class="label">עלות Landed (₪)</div>
+        <div class="value" id="v-landed">₪354</div>
+      </div>
+      <div class="stat-card" id="sc-gross">
+        <div class="label">רווח גולמי ליחידה</div>
+        <div class="value" id="v-gross">₪0</div>
+      </div>
+      <div class="stat-card" id="sc-net">
+        <div class="label">רווח נטו ליחידה (אחרי מע"מ + עמלות)</div>
+        <div class="value" id="v-net">₪0</div>
+      </div>
+      <div class="stat-card" id="sc-afterad">
+        <div class="label">רווח אחרי פרסום</div>
+        <div class="value" id="v-afterad">₪0</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>פירוט עלויות ליחידה</h3>
+      <table id="cost-breakdown">
+        <thead>
+          <tr><th6סעיף</th><th>סכום (₪)</th><th>% מהמכירה</th></tr>
+        </thead>
+        <tbody id="cost-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="grid-3" style="margin-top:20px">
+      <div class="stat-card blue">
+        <div class="label">ROAS Break-Even</div>
+        <div class="value" id="v-roas">0</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="label">יחידות לברייק-איוון חודשי</div>
+        <div class="value" id="v-be-units">0</div>
+      </div>
+      <div class="stat-card green">
+        <div class="label">מרווח נטו %</div>
+        <div class="value" id="v-margin">0%</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>מד רווחיות</h3>
+      <div id="profit-gauge"></div>
+    </div>
+  </div>
+
+  <!-- TAB: Scenarios -->
+  <div id="tab-scenarios" class="tab-content">
+    <div class="card">
+      <h2>טבלת תרחישים — רווח נטו ליחידה (אחרי מע"מ + עמלות, לפני פרסום)</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">שורות = מחירי מכירה | עמודות = עלות landed ($)</p>
+      <div style="overflow-x:auto;">
+        <table class="scenario-table" id="scenario-table">
+        </table>
+      </div>
+      <div style="margin-top:12px; display:flex; gap:16px; font-size:13px;">
+        <span><span class="badge badge-green">ירוק</span> רווח טוב (מעל ₪120)</span>
+        <span><span class="badge badge-yellow">צהוב</span> רווח סביר (₪50-120)</span>
+        <span><span class="badge badge-red">אדום</span> רווח נמוך / הפסד (מתחת ל-₪50)</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>טבלת תרחישים — רווח אחרי פרסום</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">שורות = מחירי מכירה | עמודות = עלות רכישת לקוח (CAC)</p>
+      <div style="overflow-x:auto;">
+        <table class="scenario-table" id="scenario-table-cac">
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>מתי אני רווחי?</h2>
+      <div id="profitability-levels"></div>
+    </div>
+  </div>
+
+  <!-- TAB: Market Research -->
+  <div id="tab-market" class="tab-content">
+    <div class="card">
+      <h2>מחירי שוק בישראל — מחקר מתחרים (מאי 2026)</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">טווחי מחירים למוצרי שינה פרימיום בשוק הישראלי, על בסיס מחקר באתרי e-commerce מובילים</p>
+      <div style="overflow-x:auto;">
+        <table id="market-prices-table">
+          <thead>
+            <tr>
+              <th>קטגוריה</th>
+              <th>טווח מחירים (₪)</th>
+              <th>ממוצע (₪)</th>
+              <th>מתחרים מרכזיים</th>
+              <th>חומר / רמה</th>
+            </tr>
+          </thead>
+          <tbody id="market-tbody"></tbody>
+        </table>
+      </div>
+      <div class="note">💡 המחירים מבוססים על מחקר באתרי: Bamboo&Co, Linenz, PandaZzz, Cotton Club, Arad Textile, Dr. Gav, Aeroflex, Zara Home, Sericum ועוד. מתעדכן למאי 2026.</div>
+    </div>
+
+    <div class="card">
+      <h2>כמה אני יכול להרשות לעצמי לשלם? — מחשבון הפוך</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">לפי מחיר השוק — מה העלות המקסימלית ($) שאפשר לשלם לסוכן ועדיין להישאר רווחי</p>
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="form-group">
+          <label>רווח מינימלי רצוי אחרי פרסום (₪)</label>
+          <input type="number" id="m_min_profit" value="50" step="10" onchange="recalcMarket()">
+        </div>
+        <div class="form-group">
+          <label>CAC לחישוב (₪)</label>
+          <input type="number" id="m_cac" value="80" step="5" onchange="recalcMarket()">
+        </div>
+        <div class="form-group">
+          <label>שער דולר (₪) — לחישוב</label>
+          <input type="number" id="m_rate_display" value="3.65" step="0.01" style="background:var(--bg);border:1px solid var(--border);color:var(--text-muted);padding:10px 14px;border-radius:8px;font-family:'Heebo';font-size:14px;" disabled>
+          <span style="font-size:11px;color:var(--text-muted);">נלקח מההגדרות</span>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table id="afford-table">
+          <thead>
+            <tr>
+              <th>מՕצר</th>
+              <th>מעיר מכירה (₪)</th>
+              <th>מע"מ + עמלות (₪)</th>
+              <th>CAC (₪)</th>
+              <th>רווח רצוי (₪)</th>
+              <th style="color:var(--accent-light)">תקרת עלות landed ($)</th>
+              <th>עלות נוכחית ($)</th>
+              <th>סטטוס</th>
+            </tr>
+          </thead>
+          <tbody id="afford-tbody"></tbody>
+        </table>
+      </div>
+      <div class="note" id="afford-note"></div>
+    </div>
+
+    <div class="card">
+      <h2>כלל המכפילים — 3x / 4x / 5x / 6x</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:6px;">כלל אצבע: כדי להיות רווחי בדרופשיפינג, מחיר המכירה צריך להיות <b>לפחות 3x</b> מעלות ה-landed. ככל שהמכפיל גבוה יותר — הביזנס בריא יותר.</p>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">
+        <span class="badge badge-red">פחות מ-3x</span> לא כדאי &nbsp;
+        <span class="badge badge-yellow">3x</span> מינימום &nbsp;
+        <span class="badge badge-green">4x</span> טוב &nbsp;
+        <span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(34,197,94,0.25);color:#4ade80;">5x+</span> מעולה
+      </p>
+      <div style="overflow-x:auto;">
+        <table id="multiplier-table">
+          <thead>
+            <tr>
+              <th>מוצר</th>
+              <th>עלות landed ($)</th>
+              <th>עלות landed (₪)</th>
+              <th>מכירה ב-3x (₪)</th>
+              <th>מכירה ב-4x (₪)</th>
+              <th>מכירה ב-5x (₪)</th>
+              <th>מכירה ב-6x (₪)</th>
+              <th>מחיר מכירה (₪)</th>
+              <th>מכפיל בפועל</th>
+              <th>אבחון</th>
+            </tr>
+          </thead>
+          <tbody id="multiplier-tbody"></tbody>
+        </table>
+      </div>
+      <div class="note" id="multiplier-note"></div>
+    </div>
+
+    <div class="card">
+      <h2>מה אם מלאי? — השוואת דרופ מול מלאי</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">שילוח מטען (bulk) עולה $3-6/ק"ג במקום $17-18/ק"ג. איך זה משנה את המכפילים?</p>
+      <div class="grid-3" style="margin-bottom:16px;">
+        <div class="form-group">
+          <label>עלות שילוח bulk לק"ג ($)</label>
+          <input type="number" id="m_bulk_rate" value="5" step="0.5" onchange="recalcMarket()">
+        </div>
+        <div class="form-group">
+          <label>עלות מחסן/אחסון חודשי (₪)</label>
+          <input type="number" id="m_warehouse" value="500" step="100" onchange="recalcMarket()">
+        </div>
+        <div class="form-group">
+          <label>שילוח ללקוח ישראלי (₪)</label>
+          <input type="number" id="m_local_ship" value="30" step="5" onchange="recalcMarket()">
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table id="dropvsinv-table">
+          <thead>
+            <tr>
+              <th>מוצר</th>
+              <th>משקל (ק"ג)</th>
+              <th>מוצר ($)</th>
+              <th style="color:var(--red)">Drop landed ($)</th>
+              <th style="color:var(--red)">Drop מכפיל</th>
+              <th style="color:var(--green)">מלאי landed ($)</th>
+              <th style="color:var(--green)">מלאי מכפיל</th>
+              <th>חיסכון ליחידה</th>
+            </tr>
+          </thead>
+          <tbody id="dropvsinv-tbody"></tbody>
+        </table>
+      </div>
+      <div class="note" id="dropvsinv-note"></div>
+    </div>
+
+    <div class="card">
+      <h2>🌁 בניית בנדלים — מכירה בחבילות</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+        בחר מוצרים לבנדל, קבע כמויות, הגדר מחיר מכירה — וראה מיד את הרווחיות.<br>
+        <b>התובנה:</b> CAC הוא פר הזמנה. ₪80 פרסום = ₪80, לא משנה אם הלקוח קנה מՖצר אחד או בנדל שלם.
+      </p>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:13px;color:var(--text-muted);font-weight:500;display:block;margin-bottom:8px;">בנדלים מוכנים — לחץ לטעינה:</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button class="btn btn-outline btn-sm" onclick="loadPresetBundle(0)">סט מצעים + 2 כריות</button>
+          <button class="btn btn-outline btn-sm" onclick="loadPresetBundle(1)">סט מצעים + כרית</button>
+          <button class="btn btn-outline btn-sm" onclick="loadPresetBundle(2)">סט מצעים מלא (סדין + ציפיות + ציפית שמיכה)</button>
+          <button class="btn btn-outline btn-sm" onclick="loadPresetBundle(3)">סט מצעים + 2 כריות + שמיכת קיץ</button>
+          <button class="btn btn-outline btn-sm" onclick="resetBundle()">🔄 אפס</button>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table id="bundle-builder-table">
+          <thead>
+            <tr>
+              <th>מוצר</th>
+              <th>עלות מՖצר ($)</th>
+              <th>משקל (ק"ג)</th>
+              <th>כמות בבנדל</th>
+              <th>עלות מוצרים ($)</th>
+              <th>משקל סה"כ (ק"ג)</th>
+            </tr>
+          </thead>
+          <tbody id="bundle-builder-tbody"></tbody>
+          <tfoot>
+            <tr style="background:var(--bg);font-weight:700;">
+              <td colspan="3">סה"כ בנדל</td>
+              <td id="bb-total-qty">0</td>
+              <td id="bb-total-cost">$0</td>
+              <td id="bb-total-weight">0 ק"ג</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="grid-2" style="margin-top:20px;">
+        <div class="card" style="margin-bottom:0;background:var(--bg);">
+          <h3 style="color:var(--accent-light);">הגדרות בנדל</h3>
+          <div class="form-group">
+            <label>מחיר מכירה של הבנדל (₪)</label>
+            <input type="number" id="bb_sell_price" value="899" step="10" onchange="recalcBundle()" style="font-size:18px;font-weight:700;color:var(--accent-light);">
+          </div>
+          <div class="form-group">
+            <label>CAC פר הזמנה (₪)</label>
+            <input type="number" id="bb_cac" value="80" step="5" onchange="recalcBundle()">
+          </div>
+        </div>
+        <div id="bundle-results" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div id="bundle-breakdown" style="margin-top:16px;"></div>
+      <div class="note" id="bundle-note"></div>
+    </div>
+
+    <div class="card">
+      <h2>⬆️ אפסלים בצ'קאוטנ — הגדלת סל</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
+        מוצרים קטנים שרצים בצ'קאאוט. ה-CAC כבר שולם → כל שקל נוסף הוא כמעט רווח נקי.<br>
+        סמן מՕצרים ותראה איך כל אפסל מוסיף לרווחיות ההזמנה.
+      </p>
+      <div style="overflow-x:auto;">
+        <table id="upsell-table">
+          <thead>
+            <tr>
+              <th>פעיל?</th>
+              <th>מՖצר</th>
+              <th>עלות ($)</th>
+              <th>משקל (ק"ג)</th>
+              <th>מחיר אפסל (₪)</th>
+              <th>עלות שילוח נוספת (₪)</th>
+              <th>רווח מהאפסל (₪)</th>
+            </tr>
+          </thead>
+          <tbody id="upsell-tbody"></tbody>
+          <tfoot>
+            <tr style="background:var(--bg);font-weight:700;">
+              <td colspan="4">סה"כ אפסלים פעילים</td>
+              <td id="upsell-total-price" style="color:var(--accent-light);">₪0</td>
+              <td id="upsell-total-shipcost">₪0</td>
+              <td id="upsell-total-profit" style="color:var(--green);">₪0</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div id="upsell-summary" style="margin-top:16px;"></div>
+    </div>
+
+    <div class="card">
+      <h2>סיכום — האם המחירים שלי תחרותיים?</h2>
+      <div id="market-summary"></div>
+    </div>
+  </div>
+
+  <!-- TAB: P&L -->
+  <div id="tab-pnl" class="tab-content">
+    <div class="card">
+      <div class="flex-between">
+        <h2>דוח רווח והפסד חודשי</h2>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <label style="font-size:13px;color:var(--text-muted);">יחידות בחודש:</label>
+          <input type="number" id="pnl_units" value="50" step="5" style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'Heebo';font-size:14px;text-align:center;" onchange="recalcPnL()">
+        </div>
+      </div>
+      <div style="overflow-x:auto; margin-top:16px;">
+        <table id="pnl-table">
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="stat-card" id="pnl-revenue-card">
+        <div class="label">הכנסות חודשיות</div>
+        <div class="value" id="pnl-revenue">₪0</div>
+      </div>
+      <div class="stat-card" id="pnl-profit-card">
+        <div class="label">רווח/הפסד נטו</div>
+        <div class="value" id="pnl-net">₪0</div>
+      </div>
+      <div class="stat-card" id="pnl-verdict-card">
+        <div class="label">סטטוס</div>
+        <div class="value" id="pnl-verdict">—</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== DATA =====
+const agentData = {
+  sheets_small: {
+    felix: { product: 36, ship_pickup: 48.62, ship_door: 62.58, ddp: 'כן', time: '8-15 ימים', material: '100% Bamboo, Twill, 140GSM, TC400' },
+    zach: { product: 51.58, ship_pickup: null, ship_door: 51.67, ddp: 'כן', time: '8-15 ימים', material: 'Lyocell Fiber' },
+  },
+  sheets_medium: {
+    felix: { product: 42.30, ship_pickup: 54.23, ship_door: 69.35, ddp: 'כן', time: '8-15 ימים', material: '100% Bamboo, Twill, 140GSM, TC400' },
+    zach: { product: 51.58, ship_pickup: null, ship_door: 51.67, ddp: 'כן', time: '8-15 ימים', material: 'Lyocell Fiber' },
+  },
+  sheets_large: {
+    felix: { product: 45, ship_pickup: 59.85, ship_door: 76.13, ddp: 'כן', time: '8-15 ימים', material: '100% Bamboo, Twill, 140GSM, TC400' },
+    zach: { product: 51.58, ship_pickup: null, ship_door: 51.67, ddp: 'כן', time: '8-15 ימים', material: 'Lyocell Fiber' },
+  },
+  blanket_small: {
+    felix: { product: 27, ship_pickup: 37.38, ship_door: 48.69, ddp: 'כן', time: '8-15 ימים', material: '100% Lyocell, Satin, DuPont Cotton fill, TC400' },
+    zach: { product: 11.33, ship_pickup: null, ship_door: 29.09, ddp: 'כן', time: '8-15 ימים', material: 'Tencel-Cotton (Lyocell warp + Cotton weft)' },
+  },
+  blanket_large: {
+    felix: { product: 36, ship_pickup: 41.13, ship_door: 53.20, ddp: 'כן', time: '8-15 ימים', material: '100% Lyocell, Satin, DuPont Cotton fill, TC400' },
+    zach: { product: 11.33, ship_pickup: null, ship_door: 29.09, ddp: 'כן', time: '8-15 ימים', material: 'Tencel-Cotton (Lyocell warp + Cotton weft)' },
+  },
+  pillow: {
+    felix: { product: 9, ship_pickup: 33.64, ship_door: 44.17, ddp: 'כן', time: '8-15 ימים', material: '30% Bamboo 70% Polyester, Shredded MF' },
+    felix2: { product: 10.80, ship_pickup: 37.38, ship_door: 48.69, ddp: 'כן', time: '8-15 ימים', material: '40% Bamboo 60% Polyester, Shredded MF' },
+    zach: { product: 9.06, ship_pickup: null, ship_door: 39.85, ddp: 'כן', time: '8-15 ימים', material: 'Shredded Memory Foam' },
+  }
+};
+
+let fixedExpenses = [
+  { name: 'Shopify Basic', amount: 150 },
+  { name: 'PayPlus (חודשי)', amount: 50 },
+  { name: 'דומיין', amount: 15 },
+  { name: 'מייל עסקי', amount: 25 },
+  { name: 'Canva Pro', amount: 50 },
+  { name: 'אפליקציות Shopify', amount: 100 },
+];
+
+// ===== INIT =====
+function init() {
+  renderFixedExpenses();
+  recalcAll();
+  buildScenarioTables();
+}
+
+// ===== TABS =====
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const tabNames = ['settings','fixed','agents','calc','scenarios','pnl','market'];
+  document.querySelectorAll('.tab')[tabNames.indexOf(name)].classList.add('active');
+  recalcAll();
+}
+
+// ===== SETTINGS =====
+function getSettings() {
+  return {
+    rate: parseFloat(document.getElementById('exchangeRate').value) || 3.65,
+    vat: parseFloat(document.getElementById('vatRate').value) || 18,
+    cc_fee: parseFloat(document.getElementById('s_cc_fee').value) || 2.5,
+    return_rate: parseFloat(document.getElementById('s_return_rate').value) || 2,
+    packaging: parseFloat(document.getElementById('s_packaging').value) || 0,
+    local_shipping: parseFloat(document.getElementById('s_local_shipping').value) || 0,
+    income_tax: parseFloat(document.getElementById('s_income_tax').value) || 0,
+    marketing: parseFloat(document.getElementById('monthly_marketing').value) || 4000,
+    cac: parseFloat(document.getElementById('cac').value) || 80,
+    monthly_units: parseFloat(document.getElementById('monthly_units').value) || 50,
+  };
+}
+
+// ===== FIXED EXPENSES =====
+function renderFixedExpenses() {
+  const container = document.getElementById('fixed-expenses');
+  container.innerHTML = fixedExpenses.map((e, i) => `
+    <div class="expense-row">
+      <input class="name" value="${e.name}" onchange="fixedExpenses[${i}].name=this.value">
+      <input class="amount" type="number" value="${e.amount}" onchange="fixedExpenses[${i}].amount=parseFloat(this.value)||0; updateFixedTotal()">
+      <span style="color:var(--text-muted)">₪</span>
+      <button class="remove-btn" onclick="fixedExpenses.splice(${i},1); renderFixedExpenses(); recalcAll();">✕</button>
+    </div>
+  `).join('');
+  updateFixedTotal();
+}
+
+function addFixedExpense() {
+  fixedExpenses.push({ name: '', amount: 0 });
+  renderFixedExpenses();
+}
+
+function updateFixedTotal() {
+  const total = fixedExpenses.reduce((s, e) => s + (e.amount || 0), 0);
+  document.getElementById('total-fixed').textContent = '₪' + total.toLocaleString();
+}
+
+function getTotalFixed() {
+  return fixedExpenses.reduce((s, e) => s + (e.amount || 0), 0);
+}
+
+// ===== AGENT COMPARISON =====
+function recalcAgents() {
+  const s = getSettings();
+  const product = document.getElementById('agent_product').value;
+  const data = agentData[product] || {};
+  const tbody = document.getElementById('agent-tbody');
+
+  const agentNames = { felix: 'פליקס (Felix)', felix2: 'פליקס - אופציה 2', zach: 'זאק (Zach)', ann: 'אן (Ann)', zoey: 'זואי (Zoey)' };
+
+  let rows = [];
+  let minPickup = Infinity, minDoor = Infinity;
+
+  Object.keys(data).forEach(key => {
+    const a = data[key];
+    const totalPickup = a.ship_pickup ? (a.product + a.ship_pickup) : null;
+    const totalDoor = a.ship_door ? (a.product + a.ship_door) : null;
+    if (totalPickup && totalPickup < minPickup) minPickup = totalPickup;
+    if (totalDoor && totalDoor < minDoor) minDoor = totalDoor;
+    rows.push({ key, name: agentNames[key] || key, ...a, totalPickup, totalDoor });
+  });
+
+  tbody.innerHTML = rows.map(r => {
+    const isWinnerP = r.totalPickup && Math.abs(r.totalPickup - minPickup) < 0.01;
+    const isWinnerD = r.totalDoor && Math.abs(r.totalDoor - minDoor) < 0.01;
+    return `<tr>
+      <td><b>${r.name}</b><br><span style="font-size:11px;color:var(--text-muted)">${r.material || ''}</span></td>
+      <td>$${r.product.toFixed(2)}</td>
+      <td>${r.ship_pickup ? '$'+r.ship_pickup.toFixed(2) : '—'}</td>
+      <td>${r.ship_door ? '$'+r.ship_door.toFixed(2) : '—'}</td>
+      <td class="${isWinnerP?'agent-winner':''}">${r.totalPickup ? '$'+r.totalPickup.toFixed(2) : '—'}</td>
+      <td class="${isWinnerD?'agent-winner':''}">${r.totalDoor ? '$'+r.totalDoor.toFixed(2) : '—'}</td>
+      <td>${r.totalPickup ? '₪'+(r.totalPickup*s.rate).toFixed(0) : '—'}</td>
+      <td>${r.totalDoor ? '₪'+(r.totalDoor*s.rate).toFixed(0) : '—'}</td>
+      <td>${r.ddp}</td>
+      <td>${r.time}</td>
+    </tr>`;
+  }).join('');
+
+  const cheapest = rows.reduce((best, r) => {
+    const cost = r.totalPickup || r.totalDoor || Infinity;
+    return cost < best.cost ? { name: r.name, cost } : best;
+  }, { name: '', cost: Infinity });
+
+  document.getElementById('agent-note').innerHTML = `🏆 <b>הכי זול:</b> ${cheapest.name} — $${cheapest.cost.toFixed(2)} (₪${(cheapest.cost*s.rate).toFixed(0)})`;
+}
+
+// ===== PROFITABILITY CALC =====
+function fillFromAgent() {
+  const agent = document.getElementById('c_agent').value;
+  const product = document.getElementById('agent_product').value;
+  const data = agentData[product] || {};
+
+  if (agent === 'felix' && data.felix) {
+    document.getElementById('c_landed_usd').value = (data.felix.product + (data.felix.ship_pickup || 0)).toFixed(2);
+  } else if (agent === 'felix_door' && data.felix) {
+    document.getElementById('c_landed_usd').value = (data.felix.product + (data.felix.ship_door || 0)).toFixed(2);
+  } else if (agent === 'zach' && data.zach) {
+    document.getElementById('c_landed_usd').value = (data.zach.product + (data.zach.ship_door || 0)).toFixed(2);
+  }
+  recalcProfit();
+}
+
+function calcUnitProfit(sellPrice, landedUSD, settings) {
+  const s = settings || getSettings();
+  const landedILS = landedUSD * s.rate;
+  const vatAmount = sellPrice * (s.vat / (100 + s.vat));
+  const ccFee = sellPrice * (s.cc_fee / 100);
+  const returnCost = sellPrice * (s.return_rate / 100);
+  const packaging = s.packaging;
+  const localShip = s.local_shipping;
+
+  const totalCosts = landedILS + vatAmount + ccFee + returnCost + packaging + localShip;
+  const grossProfit = sellPrice - landedILS;
+  const netProfit = sellPrice - totalCosts;
+  const afterAd = netProfit - s.cac;
+
+  return {
+    sellPrice,
+    landedILS,
+    vatAmount,
+    ccFee,
+    returnCost,
+    packaging,
+    localShip,
+    totalCosts,
+    grossProfit,
+    netProfit,
+    afterAd,
+    margin: sellPrice > 0 ? (netProfit / sellPrice * 100) : 0,
+    roas: netProfit > 0 ? (sellPrice / netProfit) : Infinity,
+  };
+}
+
+function recalcProfit() {
+  const s = getSettings();
+  const sellPrice = parseFloat(document.getElementById('c_sell_price').value) || 0;
+  const landedUSD = parseFloat(document.getElementById('c_landed_usd').value) || 0;
+
+  const r = calcUnitProfit(sellPrice, landedUSD, s);
+
+  // Stats
+  document.getElementById('v-landed').textContent = '₪' + r.landedILS.toFixed(0);
+
+  const grossEl = document.getElementById('v-gross');
+  grossEl.textContent = '₪' + r.grossProfit.toFixed(0);
+  document.getElementById('sc-gross').className = 'stat-card ' + (r.grossProfit > 0 ? 'green' : 'red');
+
+  const netEl = document.getElementById('v-net');
+  netEl.textContent = '₪' + r.netProfit.toFixed(0);
+  document.getElementById('sc-net').className = 'stat-card ' + (r.netProfit > 100 ? 'green' : r.netProfit > 0 ? 'yellow' : 'red');
+
+  const afterEl = document.getElementById('v-afterad');
+  afterEl.textContent = '₪' + r.afterAd.toFixed(0);
+  document.getElementById('sc-afterad').className = 'stat-card ' + (r.afterAd > 50 ? 'green' : r.afterAd > 0 ? 'yellow' : 'red');
+
+  // ROAS
+  document.getElementById('v-roas').textContent = r.roas === Infinity ? '∞' : r.roas.toFixed(2);
+
+  // Break-even units
+  const totalFixed = getTotalFixed() + s.marketing;
+  const beUnits = r.netProfit > 0 ? Math.ceil(totalFixed / r.netProfit) : '∞';
+  document.getElementById('v-be-units').textContent = beUnits;
+
+  // Margin
+  document.getElementById('v-margin').textContent = r.margin.toFixed(1) + '%';
+  document.getElementById('v-margin').parentElement.className = 'stat-card ' + (r.margin > 25 ? 'green' : r.margin > 10 ? 'yellow' : 'red');
+
+  // Cost breakdown table
+  const tbody = document.getElementById('cost-tbody');
+  const rows = [
+    ['עלות מוצר + שילוח (landed)', r.landedILS, sellPrice > 0 ? r.landedILS/sellPrice*100 : 0],
+    ['מע"מ (' + s.vat + '%)', r.vatAmount, sellPrice > 0 ? r.vatAmount/sellPrice*100 : 0],
+    ['עמלת סליקה (' + s.cc_fee + '%)', r.ccFee, sellPrice > 0 ? r.ccFee/sellPrice*100 : 0],
+    ['החזרות (' + s.return_rate + '%)', r.returnCost, sellPrice > 0 ? r.returnCost/sellPrice*100 : 0],
+    ['אריזה', r.packaging, sellPrice > 0 ? r.packaging/sellPrice*100 : 0],
+    ['שילוח ללקוח', r.localShip, sellPrice > 0 ? r.localShip/sellPrice*100 : 0],
+  ];
+
+  tbody.innerHTML = rows.map(r => `
+    <tr><td>${r[0]}</td><td>₪${r[1].toFixed(1)}</td><td>${r[2].toFixed(1)}%</td></tr>
+  `).join('') + `
+    <tr class="pnl-row-header"><td><b>סה"כ עלויות</b></td><td><b>₪${r.totalCosts.toFixed(0)}</b></td><td><b>${pct(r.totalCosts,sellPrice)}%</b></td></tr>
+    <tr><td><b>רווח נטו (לפני פרסום)</b></td><td class="${r.netProfit>=0?'pnl-positive':'pnl-negative'}"><b>₪${r.netProfit.toFixed(0)}</b></td><td><b>${r.margin.toFixed(1)}%</b></td></tr>
+    <tr><td><b>רווח אחרי פרסום (CAC ₪${s.cac})</b></td><td class="${r.afterAd>=0?'pnl-positive':'pnl-negative'}"><b>₪${r.afterAd.toFixed(0)}</b></td><td><b>${pct(r.afterAd,sellPrice)}%</b></td></tr>
+  `;
+
+  // Gauge
+  renderGauge(r.netProfit, r.afterAd, r.margin);
+}
+
+function renderGauge(netProfit, afterAd, margin) {
+  const gauge = document.getElementById('profit-gauge');
+  let level, color, text, desc;
+
+  if (afterAd >= 120) { level = 'excellent'; color = 'var(--green)'; text = '🔥 רווחי מעולה'; desc = 'המרווח מצוין, אפשר לסקייל בבטחון'; }
+  else if (afterAd >= 60) { level = 'good'; color = 'var(--green)'; text = '∅ רווחי טוב'; desc = 'מרווח טוב, ביזנס בריש'; }
+  else if (afterAd >= 20) { level = 'ok'; color = 'var(--yellow)'; text = '⚠️ רווחי סליר'; desc = 'עובד, אבל רגיש לשינויים בעלויות או בפרסום'; }
+  else if (afterAd >= 0) { level = 'thin'; color = 'var(--yellow)'; text = '😐 רווח דק'; desc = 'כמעט ברייקי-איוון. כל שינוי קטן יכול להפוך להפסד'; }
+  else { level = 'loss'; color = 'var(--red)'; text = '❌ הפסד'; desc = 'לא כדאי. צריך להוריד עלויות או להעלות מחיר מכירה'; }
+
+  const pct = Math.min(100, Math.max(0, (afterAd + 50) / 200 * 100));
+
+  gauge.innerHTML = `
+    <div style="font-size:20px;font-weight:700;color:${color};margin-bottom:4px;">${text}</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:12px;">${desc}</div>
+    <div class="progress-bar" style="height:12px;">
+      <div class="progress-fill" style="width:${pct}%;background:${color};"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:4px;">
+      <span>הפסד</span><span>ברייקט-איוון</span><span>רווח סליר</span><span>רווח מעולה</span>
+    </div>
+  `;
+}
+
+// ===== SCENARIO TABLES =====
+function buildScenarioTables() {
+  const s = getSettings();
+  const prices = [299, 349, 399, 449, 499, 549, 599];
+  const landedCosts = [60, 70, 80, 90, 100, 110, 120];
+  const cacLevels = [40, 60, 80, 100, 120, 150];
+
+  // Table 1: Price × Landed Cost
+  let html = '<thead><tr><th>מכיר \\ עלות ($)</th>';
+  landedCosts.forEach(c => html += `<th>$${c}</th>`);
+  html += '</tr></thead><tbody>';
+
+  prices.forEach(price => {
+    html += `<tr><td><b>₪${price}</b></td>`;
+    landedCosts.forEach(cost => {
+      const r = calcUnitProfit(price, cost, s);
+      const cls = r.netProfit >= 120 ? 'highlight-green' : r.netProfit >= 50 ? 'highlight-yellow' : 'highlight-red';
+      html += `<td class="${cls}">₪${r.netProfit.toFixed(0)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  document.getElementById('scenario-table').innerHTML = html;
+
+  // Table 2: Price × CAC
+  const midLanded = parseFloat(document.getElementById('c_landed_usd').value) || 97;
+  let html2 = '<thead><tr><th>מחיר \\ CAC</th>';
+  cacLevels.forEach(c => html2 += `<th>₪${c}</th>`);
+  html2 += '</tr></thead><tbody>';
+
+  prices.forEach(price => {
+    html2 += `<tr><td><b>₪${price}</b></td>`;
+    cacLevels.forEach(cac => {
+      const tempS = { ...s, cac };
+      const r = calcUnitProfit(price, midLanded, tempS);
+      const cls = r.afterAd >= 80 ? 'highlight-green' : r.afterAd >= 20 ? 'highlight-yellow' : 'highlight-red';
+      html2 += `<td class="${cls}">₪${r.afterAd.toFixed(0)}</td>`;
+    });
+    html2 += '</tr>';
+  });
+  html2 += '</tbody>';
+  document.getElementById('scenario-table-cac').innerHTML = html2;
+
+  // Profitability levels
+  const levels = document.getElementById('profitability-levels');
+  const landed = parseFloat(document.getElementById('c_landed_usd').value) || 97;
+
+  // Find break-even price
+  let bePrice = 0;
+  for (let p = 100; p < 1000; p += 1) {
+    const r = calcUnitProfit(p, landed, s);
+    if (r.afterAd >= 0) { bePrice = p; break; }
+  }
+  let okPrice = 0;
+  for (let p = 100; p < 1000; p += 1) {
+    const r = calcUnitProfit(p, landed, s);
+    if (r.afterAd >= 50) { okPrice = p; break; }
+  }
+  let goodPrice = 0;
+  for (let p = 100; p < 1000; p += 1) {
+    const r = calcUnitProfit(p, landed, s);
+    if (r.afterAd >= 120) { goodPrice = p; break; }
+  }
+
+  levels.innerHTML = `
+    <table>
+      <thead><tr><th>רמה</th><th>רווח אחרי פרסום</th><th>מחיר מכירה מינימלי</th><th>סטטוס</th></tr></thead>
+      <tbody>
+        <tr><td>❌ הפסד</td><td>שלילי</td><td>מתחת ל-₪${bePrice}</td><td><span class="badge badge-red">לא כדאי</span></td></tr>
+        <tr><td>😐 ברייק-איזון</td><td>₪0</td><td>₪${bePrice}</td><td><span class="badge badge-yellow">שרד</span></td></tr>
+        <tr><td>⚠️ רווח סביר</td><td>₪50+</td><td>₪${okPrice}</td><td><span class="badge badge-yellow">עובד</span></td></tr>
+        <tr><td>✅ רווח טוב</td><td>₪120+</td><td>₪${goodPrice || '1000+'}</td><td><span class="badge badge-green">ביזנס בריא</span></td></tr>
+      </tbody>
+    </table>
+    <div class="note" style="margin-top:16px;">💡 החישוב מבוסס על עלות landed של $${landed} (₪${(landed*s.rate).toFixed(0)}) ו-CAC של ₪${s.cac}. שנה את הנתונים בהגדרות ובמחשבון כדי לראות תרחישים שונים.</div>
+  `;
+}
+
+// Helper: safe percentage (avoids NaN when dividing by 0)
+function pct(num, denom) { return denom > 0 ? (num / denom * 100).toFixed(1) : '0.0'; }
+
+// ===== P&L =====
+function recalcPnL() {
+  const s = getSettings();
+  const units = parseFloat(document.getElementById('pnl_units').value) || 0;
+  const sellPrice = parseFloat(document.getElementById('c_sell_price').value) || 399;
+  const landedUSD = parseFloat(document.getElementById('c_landed_usd').value) || 97;
+
+  const r = calcUnitProfit(sellPrice, landedUSD, s);
+  const totalFixed = getTotalFixed();
+
+  const revenue = sellPrice * units;
+  const cogs = r.landedILS * units;
+  const grossProfit = revenue - cogs;
+  const vatTotal = r.vatAmount * units;
+  const ccTotal = r.ccFee * units;
+  const returnTotal = r.returnCost * units;
+  const packTotal = r.packaging * units;
+  const shipTotal = r.localShip * units;
+  const totalVariable = vatTotal + ccTotal + returnTotal + packTotal + shipTotal;
+  const marketing = s.marketing;
+  const totalExpenses = cogs + totalVariable + totalFixed + marketing;
+  const netProfit = revenue - totalExpenses;
+  const incomeTax = netProfit > 0 ? netProfit * (s.income_tax / 100) : 0;
+  const finalProfit = netProfit - incomeTax;
+
+  const table = document.getElementById('pnl-table');
+  table.innerHTML = `
+    <thead><tr><th>סעיף</th><th>סכום (₪)</th><th>% מההכנסות</th></tr></thead>
+    <tbody>
+      <tr class="pnl-row-header"><td colspan="3"><b>הכנסות</b></td></tr>
+      <tr><td>מכירות (${units} × ₪${sellPrice})</td><td>₪${revenue.toLocaleString()}</td><td>100%</td></tr>
+
+      <tr class="pnl-row-header"><td colspan="3"><b>עלות מכר (COGS)</b></td></tr>
+      <tr><td>עלות מוצרים + שילוח</td><td>-₪${cogs.toLocaleString()}</td><td>${pct(cogs,revenue)}%</td></tr>
+
+      <tr class="pnl-row-header"><td><b>רווח גולמי</b></td><td class="${grossProfit>=0?'pnl-positive':'pnl-negative'}"><b>₪${grossProfit.toLocaleString()}</b></td><td><b>${pct(grossProfit,revenue)}%</b></td></tr>
+
+      <tr class="pnl-row-header"><td colspan="3"><b>הוצאות משתנות</b></td></tr>
+      <tr><td>מע"מ (${s.vat}%)</td><td>-₪${vatTotal.toFixed(0)}</td><td>${pct(vatTotal,revenue)}%</td></tr>
+      <tr><td>עמלת סליקה (${s.cc_fee}%)</td><td>-₪${ccTotal.toFixed(0)}</td><td>${pct(ccTotal,revenue)}%</td></tr>
+      <tr><td>החזרות (${s.return_rate}%)</td><td>-₪${returnTotal.toFixed(0)}</td><td>${pct(returnTotal,revenue)}%</td></tr>
+      ${packTotal > 0 ? `<tr><td>אריזה</td><td>-₪${packTotal.toFixed(0)}</td><td>${pct(packTotal,revenue)}%</td></tr>` : ''}
+      ${shipTotal > 0 ? `<tr><td>שילוח ללקוח</td><td>-₪${shipTotal.toFixed(0)}</td><td>${pct(shipTotal,revenue)}%</td></tr>` : ''}
+
+      <tr class="pnl-row-header"><td colspan="3"><b>הוצאות קבועות</b></td></tr>
+      <tr><td>הוצאות קבועות חודשיות</td><td>-₪${totalFixed.toLocaleString()}</td><td>${pct(totalFixed,revenue)}%</td></tr>
+
+      <tr class="pnl-row-header"><td colspan="3"><b>שיווק</b></td></tr>
+      <tr><td>תקציב שיווק חודשי</td><td>-₪${marketing.toLocaleString()}</td><td>${pct(marketing,revenue)}%</td></tr>
+
+      <tr class="pnl-row-header"><td><b>רווח לפני מס</b></td><td class="${netProfit>=0?'pnl-positive':'pnl-negative'}"><b>₪${netProfit.toLocaleString()}</b></td><td><b>${pct(netProfit,revenue)}%</b></td></tr>
+
+      ${s.income_tax > 0 ? `<tr><td>מס הכנסה (${s.income_tax}%)</td><td>-₪${incomeTax.toFixed(0)}</td><td>${pct(incomeTax,revenue)}%</td></tr>` : ''}
+
+      <tr class="pnl-row-header" style="font-size:16px;"><td><b>רווח נטו</b></td><td class="${finalProfit>=0?'pnl-positive':'pnl-negative'}"><b>₪${finalProfit.toLocaleString()}</b></td><td><b>${pct(finalProfit,revenue)}%</b></td></tr>
+    </tbody>
+  `;
+
+  // Stats
+  document.getElementById('pnl-revenue').textContent = '₪' + revenue.toLocaleString();
+  document.getElementById('pnl-net').textContent = '₪' + finalProfit.toLocaleString();
+  document.getElementById('pnl-profit-card').className = 'stat-card ' + (finalProfit > 0 ? 'green' : 'red');
+
+  let verdict = '', verdictColor = '';
+  if (finalProfit > 3000) { verdict = '🔥 רווחי מעולה'; verdictColor = 'green'; }
+  else if (finalProfit > 1000) { verdict = '✅ רווחי'; verdictColor = 'green'; }
+  else if (finalProfit > 0) { verdict = '⚠️ רווח דק'; verdictColor = 'yellow'; }
+  else { verdict = '❌ הפסד'; verdictColor = 'red'; }
+
+  document.getElementById('pnl-verdict').textContent = verdict;
+  document.getElementById('pnl-verdict-card').className = 'stat-card ' + verdictColor;
+}
+
+// ===== MARKET RESEARCH =====
+const marketData = [
+  {
+    id: 'sheets',
+    name: 'סט מצעים (במבוק / טנסל)',
+    low: 350, high: 800, avg: 550,
+    competitors: 'Bamboo&Co (₪519-799), Linenz (₪749-999), PandaZzz, Cotton Club, Arigad',
+    material: 'במבוק 100%, טנסל ליוסל, סאטן 400-600TC',
+    currentLanded: 97,
+    productCost: 42.30,
+    weightKg: 2.8,
+    sellPrice: 499,
+    agentKey: 'sheets_medium',
+  },
+  {
+    id: 'blanket',
+    name: 'שמיכת קיץ קלה (זוגית)',
+    low: 200, high: 500, avg: 350,
+    competitors: 'Cotton Club, Arad Textile, Kitan, HomeStyle',
+    material: 'טנסל / במבוק / כותנה פיקה, 150-200GSM',
+    currentLanded: 77,
+    productCost: 36,
+    weightKg: 2.0,
+    sellPrice: 349,
+    agentKey: 'blanket_large',
+  },
+  {
+    id: 'pillow',
+    name: 'כרית Memory Foam',
+    low: 200, high: 500, avg: 320,
+    competitors: 'Dr. Gav (₪275+), Aeroflex (₪299-756), PandaZzz, Frid',
+    material: 'ויסקו אלסטי / קפף זיכרון מגורר, ג\'ל מקרק',
+    currentLanded: 49,
+    productCost: 9,
+    weightKg: 1.5,
+    sellPrice: 289,
+    agentKey: 'pillow',
+  },
+  {
+    id: 'mask',
+    name: 'מסכת שינה (משי / פרימיום)',
+    low: 79, high: 230, avg: 149,
+    competitors: 'Zara Home (₪150), Sericum (₪127), Deer, L\'Occitane (₪222)',
+    material: 'משי טבעי Mulberry, סאטן, ויסקוזה',
+    currentLanded: 15,
+    productCost: 5,
+    weightKg: 0.15,
+    sellPrice: 129,
+    agentKey: 'mask',
+  },
+  {
+    id: 'earplugs',
+    name: 'אטמי אוזניים לשינה',
+    low: 39, high: 149, avg: 79,
+    competitors: 'Super-Pharm, KSP, Ear Protect, Medical Beauty, עזרים',
+    material: 'סיליקון רך / ספוג, התאמה אישית, רב פעמיים',
+    currentLanded: 8,
+    productCost: 2,
+    weightKg: 0.05,
+    sellPrice: 69,
+    agentKey: 'earplugs',
+  },
+];
+
+function updateMarketSellPrice(idx, val) {
+  marketData[idx].sellPrice = parseFloat(val) || 0;
+  recalcMarket();
+}
+function updateMarketLanded(idx, val) {
+  marketData[idx].currentLanded = parseFloat(val) || 0;
+  recalcMarket();
+}
+
+// ===== BUNDLE BUILDER DATA =====
+const bundleProducts = [
+  { id: 'sheets', name: 'סט מצעים (במבוק / טנסל)', productCost: 42.30, weightKg: 2.8 },
+  { id: 'pillow', name: 'כרית Memory Foam', productCost: 9, weightKg: 1.5 },
+  { id: 'blanket', name: 'שמיכת קיץ קלה (זוגית)', productCost: 36, weightKg: 2.0 },
+  { id: 'mask', name: 'מסכת שינה (משי)', productCost: 5, weightKg: 0.15 },
+  { id: 'earplugs', name: 'אטמי אוזניים לשינה', productCost: 2, weightKg: 0.05 },
+  { id: 'spray', name: 'ספריי כרית לבנדר', productCost: 3, weightKg: 0.3 },
+  { id: 'extra_case', name: 'ציפית נוספת (במבוק)', productCost: 5, weightKg: 0.2 },
+];
+
+const presetBundles = [
+  // סט מצעים + 2 כריות
+  { sheets: 1, pillow: 2 },
+  // סט מצעים + כרית
+  { sheets: 1, pillow: 1 },
+  // סט מצעים מלא
+  { sheets: 1, extra_case: 2 },
+  // סט מצעים + 2 כריות + שמיכת קיץ
+  { sheets: 1, pillow: 2, blanket: 1 },
+];
+
+const upsellItems = [
+  { id: 'spray', name: 'ספריי כרית לבנדר', productCost: 3, weightKg: 0.3, sellPrice: 49 },
+  { id: 'mask', name: 'מסכת שינה (משי)', productCost: 5, weightKg: 0.15, sellPrice: 79 },
+  { id: 'extra_case', name: 'ציפית נוספת (במבוק)', productCost: 5, weightKg: 0.2, sellPrice: 59 },
+  { id: 'earplugs', name: 'אטמי אוזניים לשינה', productCost: 2, weightKg: 0.05, sellPrice: 39 },
+];
+
+// Current bundle quantities (product id → qty)
+let bundleQty = {};
+
+function loadPresetBundle(idx) {
+  bundleQty = { ...presetBundles[idx] };
+  renderBundleBuilder();
+  recalcBundle();
+}
+
+function resetBundle() {
+  bundleQty = {};
+  renderBundleBuilder();
+  recalcBundle();
+}
+
+function setBundleQty(productId, val) {
+  const q = parseInt(val) || 0;
+  if (q > 0) bundleQty[productId] = q;
+  else delete bundleQty[productId];
+  recalcBundle();
+}
+
+function renderBundleBuilder() {
+  const tbody = document.getElementById('bundle-builder-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = bundleProducts.map(p => {
+    const qty = bundleQty[p.id] || 0;
+    const totalCost = (p.productCost * qty);
+    const totalWeight = (p.weightKg * qty);
+    return `<tr style="${qty > 0 ? 'background:rgba(139,92,246,0.08);' : ''}">
+      <td><b>${p.name}</b></td>
+      <td>$${p.productCost}</td>
+      <td>${p.weightKg} ק"ג</td>
+      <td><input type="number" min="0" max="10" value="${qty}" style="width:60px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:'Heebo';font-size:14px;text-align:center;" onchange="setBundleQty('${p.id}',this.value)"></td>
+      <td>${qty > 0 ? '$' + totalCost.toFixed(1) : '—'}</td>
+      <td>${qty > 0 ? totalWeight.toFixed(2) + ' ק"ג' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function recalcBundle() {
+  const s = getSettings();
+  const fixedShip = 4;
+  const perKg = 17.23;
+
+  // Totals
+  let totalProductCost = 0, totalWeight = 0, totalQty = 0;
+  const items = [];
+  bundleProducts.forEach(p => {
+    const qty = bundleQty[p.id] || 0;
+    if (qty > 0) {
+      totalProductCost += p.productCost * qty;
+      totalWeight += p.weightKg * qty;
+      totalQty += qty;
+      items.push({ ...p, qty });
+    }
+  });
+
+  // Update footer
+  const elQty = document.getElementById('bb-total-qty');
+  const elCost = document.getElementById('bb-total-cost');
+  const elWeight = document.getElementById('bb-total-weight');
+  if (elQty) elQty.textContent = totalQty;
+  if (elCost) elCost.textContent = '$' + totalProductCost.toFixed(1);
+  if (elWeight) elWeight.textContent = totalWeight.toFixed(2) + ' ק"ג';
+
+  const sellPrice = parseFloat(document.getElementById('bb_sell_price').value) || 0;
+  const cac = parseFloat(document.getElementById('bb_cac').value) || 80;
+
+  // Shipping: one package
+  const shippingUSD = totalQty > 0 ? (fixedShip + totalWeight * perKg) : 0;
+  const landedUSD = totalProductCost + shippingUSD;
+  const landedILS = landedUSD * s.rate;
+
+  // Overhead
+  const vat = sellPrice * (s.vat / (100 + s.vat));
+  const cc = sellPrice * (s.cc_fee / 100);
+  const returns = sellPrice * (s.return_rate / 100);
+  const overhead = vat + cc + returns;
+
+  // Profit
+  const profit = sellPrice - landedILS - overhead - cac;
+  const margin = sellPrice > 0 ? (profit / sellPrice * 100) : 0;
+  const multiplier = landedILS > 0 ? (sellPrice / landedILS) : 0;
+  const cacPerUnit = totalQty > 0 ? (cac / totalQty) : cac;
+
+  // Results grid
+  const resultsEl = document.getElementById('bundle-results');
+  if (resultsEl) {
+    if (totalQty === 0) {
+      resultsEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:30px;">בחר מוצרים מהטבלה או לחץ על בנדל מוכן</div>';
+    } else {
+      resultsEl.innerHTML = `
+        <div class="stat-card" style="text-align:center;">
+          <div style="font-size:11px;color:var(--text-muted);">עלות landed (₪)</div>
+          <div style="font-size:22px;font-weight:800;">₪${landedILS.toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">($${landedUSD.toFixed(1)})</div>
+        </div>
+        <div class="stat-card" style="text-align:center;">
+          <div style="font-size:11px;color:var(--text-muted);">מכפיל</div>
+          <div style="font-size:22px;font-weight:800;color:${multiplier>=3?'var(--green)':multiplier>=2?'var(--yellow)':'var(--red)'};">x${multiplier.toFixed(1)}</div>
+        </div>
+        <div class="stat-card" style="text-align:center;">
+          <div style="font-size:11px;color:var(--text-muted);">רווח נקי</div>
+          <div style="font-size:22px;font-weight:800;color:${profit>=0?'var(--green)':'var(--red)'};">₪${profit.toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${margin.toFixed(0)}% מרווח</div>
+        </div>
+        <div class="stat-card" style="text-align:center;">
+          <div style="font-size:11px;color:var(--text-muted);">CAC ליחידה</div>
+          <div style="font-size:22px;font-weight:800;color:var(--accent-light);">₪${cacPerUnit.toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">במקום ₪${cac}</div>
+        </div>
+      `;
+    }
+  }
+
+  // Breakdown
+  const breakdownEl = document.getElementById('bundle-breakdown');
+  if (breakdownEl && totalQty > 0) {
+    const itemLines = items.map(it =>
+      `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);">
+        <span>${it.name} × ${it.qty}</span>
+        <span>$${(it.productCost * it.qty).toFixed(1)} | ${(it.weightKg * it.qty).toFixed(2)} ק"ג</span>
+      </div>`
+    ).join('');
+    breakdownEl.innerHTML = `
+      <div style="background:var(--bg);border-radius:10px;padding:16px;font-size:13px;">
+        <div style="font-weight:600;margin-bottom:8px;">פירוט חישוב:</div>
+        ${itemLines}
+        <div style="display:flex;justify-content:space-between;padding:6px 0;margin-top:4px;">
+          <span>📦 שילוח ($${fixedShip} קבוע + ${totalWeight.toFixed(2)} ק"ג × $${perKg}/ק"ג)</span>
+          <span style="font-weight:600;">$${shippingUSD.toFixed(1)} (₪${(shippingUSD*s.rate).toFixed(0)})</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:2px solid var(--border);margin-top:4px;">
+          <span style="font-weight:700;">סה"כ עלות landed</span>
+          <span style="font-weight:700;color:var(--accent-light);">₪${landedILS.toFixed(0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;">
+          <span>מע"מ (${s.vat}%)</span><span>-₪${vat.toFixed(0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;">
+          <span>עמלת סליקה (${s.cc_fee}%)</span><span>-₪${cc.toFixed(0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;">
+          <span>החזרות (${s.return_rate}%)</span><span>-₪${returns.toFixed(0)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;">
+          <span>CAC</span><span>-₪${cac}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--border);margin-top:4px;font-size:15px;">
+          <span style="font-weight:700;">💰 רווח נקי</span>
+          <span style="font-weight:800;color:${profit>=0?'var(--green)':'var(--red)'};">₪${profit.toFixed(0)}</span>
+        </div>
+      </div>
+    `;
+  } else if (breakdownEl) {
+    breakdownEl.innerHTML = '';
+  }
+
+  // Bundle note
+  const noteEl = document.getElementById('bundle-note');
+  if (noteEl && totalQty > 0) {
+    noteEl.innerHTML = `
+      💡 <b>${totalQty} מוצרים בחבילה אחת</b> — ה-CAC יורד מ-₪${cac} ל-₪${cacPerUnit.toFixed(0)} ליחידה.<br>
+      <span style="color:var(--text-muted);">שילוח: $${fixedShip} קבוע + ${totalWeight.toFixed(2)} ק"ג × $${perKg}/ק"ג = $${shippingUSD.toFixed(1)}. הכל נשלח בחבילה אחת.</span>
+    `;
+  } else if (noteEl) {
+    noteEl.innerHTML = '';
+  }
+
+  // === UPSELL CALCULATOR ===
+  renderUpsells();
+}
+
+function renderUpsells() {
+  const s = getSettings();
+  const perKg = 17.23;
+  const tbody = document.getElementById('upsell-tbody');
+  if (!tbody) return;
+
+  let totalUpsellPrice = 0, totalUpsellShipCost = 0, totalUpsellProfit = 0, activeCount = 0;
+
+  tbody.innerHTML = upsellItems.map((u, i) => {
+    const checked = u.active ? 'checked' : '';
+    const shipCostUSD = u.weightKg * perKg; // marginal shipping cost (no fixed — already in base order)
+    const shipCostILS = shipCostUSD * s.rate;
+    const landedILS = u.productCost * s.rate + shipCostILS;
+    const vatCost = u.sellPrice * (s.vat / (100 + s.vat));
+    const ccCost = u.sellPrice * (s.cc_fee / 100);
+    const profit = u.sellPrice - landedILS - vatCost - ccCost; // no CAC — already paid
+
+    if (u.active) {
+      totalUpsellPrice += u.sellPrice;
+      totalUpsellShipCost += shipCostILS;
+      totalUpsellProfit += profit;
+      activeCount++;
+    }
+
+    return `<tr style="${u.active ? 'background:rgba(16,185,129,0.08);' : ''}">
+      <td><input type="checkbox" ${checked} onchange="toggleUpsell(${i},this.checked)" style="width:18px;height:18px;cursor:pointer;"></td>
+      <td><b>${u.name}</b></td>
+      <td>$${u.productCost}</td>
+      <td>${u.weightKg} ק"ג</td>
+      <td><input type="number" value="${u.sellPrice}" step="5" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--accent-light);padding:6px;border-radius:6px;font-family:'Heebo';font-size:13px;text-align:center;font-weight:700;" onchange="updateUpsellPrice(${i},this.value)"></td>
+      <td>₪${shipCostILS.toFixed(0)}</td>
+      <td style="font-weight:700;color:${profit>=0?'var(--green)':'var(--red)'};">₪${profit.toFixed(0)}</td>
+    </tr>`;
+  }).join('');
+
+  // Footer totals
+  const elPrice = document.getElementById('upsell-total-price');
+  const elShip = document.getElementById('upsell-total-shipcost');
+  const elProfit = document.getElementById('upsell-total-profit');
+  if (elPrice) elPrice.textContent = '₪' + totalUpsellPrice;
+  if (elShip) elShip.textContent = '₪' + totalUpsellShipCost.toFixed(0);
+  if (elProfit) elProfit.textContent = '₪' + totalUpsellProfit.toFixed(0);
+
+  // Summary
+  const summaryEl = document.getElementById('upsell-summary');
+  if (summaryEl && activeCount > 0) {
+    const bundleSellPrice = parseFloat(document.getElementById('bb_sell_price').value) || 0;
+    const bundleCac = parseFloat(document.getElementById('bb_cac').value) || 80;
+    const totalOrderValue = bundleSellPrice + totalUpsellPrice;
+    summaryEl.innerHTML = `
+      <div style="background:var(--bg);border-radius:10px;padding:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);">ערך הזמנה כולל</div>
+          <div style="font-size:20px;font-weight:800;color:var(--accent-light);">₪${totalOrderValue}</div>
+          <div style="font-size:11px;color:var(--text-muted);">בנדל ₪${bundleSellPrice} + אפסלים ₪${totalUpsellPrice}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);">רווח מאפסלים</div>
+          <div style="font-size:20px;font-weight:800;color:var(--green);">+₪${totalUpsellProfit.toFixed(0)}</div>
+          <div style="font-size:11px;color:var(--text-muted);">כמעט רווח נקי (בלי CAC)</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);">CAC מול ערך הזמנה</div>
+          <div style="font-size:20px;font-weight:800;">${totalOrderValue > 0 ? pct(bundleCac, totalOrderValue) : '0.0'}%</div>
+          <div style="font-size:11px;color:var(--text-muted);">₪${bundleCac} מתוך ₪${totalOrderValue}</div>
+        </div>
+      </div>
+    `;
+  } else if (summaryEl) {
+    summaryEl.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:12px;font-size:13px;">סמן אפסלים מהטבלה כדי לראות את ההשפעה על ההזמנה</div>';
+  }
+}
+
+function toggleUpsell(idx, checked) {
+  upsellItems[idx].active = checked;
+  recalcBundle();
+}
+
+function updateUpsellPrice(idx, val) {
+  upsellItems[idx].sellPrice = parseFloat(val) || 0;
+  recalcBundle();
+}
+
+function recalcMarket() {
+  const s = getSettings();
+  const minProfit = parseFloat(document.getElementById('m_min_profit').value) || 50;
+  const mCac = parseFloat(document.getElementById('m_cac').value) || 80;
+
+  // Sync rate display
+  const rateDisplay = document.getElementById('m_rate_display');
+  if (rateDisplay) rateDisplay.value = s.rate;
+
+  // Market prices table
+  const marketTbody = document.getElementById('market-tbody');
+  marketTbody.innerHTML = marketData.map((m, i) => `
+    <tr>
+      <td><b>${m.name}</b></td>
+      <td>₪${m.low} — ₪${m.high}</td>
+      <td style="color:var(--accent-light);font-weight:600;">₪${m.avg}</td>
+      <td style="font-size:12px;">${m.competitors}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${m.material}</td>
+    </tr>
+  `).join('');
+
+  // Affordability table
+  const affordTbody = document.getElementById('afford-tbody');
+  let feasibleCount = 0;
+  let totalProducts = marketData.length;
+
+  affordTbody.innerHTML = marketData.map((m, i) => {
+    const sellPrice = m.sellPrice;
+    const vatAmount = sellPrice * (s.vat / (100 + s.vat));
+    const ccFee = sellPrice * (s.cc_fee / 100);
+    const returnCost = sellPrice * (s.return_rate / 100);
+    const overheadPerUnit = vatAmount + ccFee + returnCost + s.packaging + s.local_shipping;
+
+    const maxLandedILS = sellPrice - overheadPerUnit - mCac - minProfit;
+    const maxLandedUSD = maxLandedILS / s.rate;
+
+    const isFeasible = maxLandedUSD >= m.currentLanded;
+    if (isFeasible) feasibleCount++;
+
+    const diff = maxLandedUSD - m.currentLanded;
+
+    let statusBadge, statusClass;
+    if (diff >= 20) { statusBadge = '✅ מרווח נוח'; statusClass = 'badge-green'; }
+    else if (diff >= 0) { statusBadge = '⚠️ צפוף אבל עובד'; statusClass = 'badge-yellow'; }
+    else { statusBadge = '❌ לא מספיק (' + diff.toFixed(0) + '$)'; statusClass = 'badge-red'; }
+
+    return `<tr>
+      <td><b>${m.name}</b></td>
+      <td><input type="number" value="${sellPrice}" step="10" style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--accent-light);padding:6px 10px;border-radius:6px;font-family:'Heebo';font-size:14px;text-align:center;font-weight:700;" onchange="updateMarketSellPrice(${i},this.value)"></td>
+      <td>₪${overheadPerUnit.toFixed(0)}</td>
+      <td>₪${mCac}</td>
+      <td>₪${minProfit}</td>
+      <td style="color:var(--accent-light);font-weight:700;font-size:16px;">$${maxLandedUSD.toFixed(0)}</td>
+      <td><input type="number" value="${m.currentLanded}" step="1" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'Heebo';font-size:13px;text-align:center;" onchange="updateMarketLanded(${i},this.value)"></td>
+      <td><span class="badge ${statusClass}">${statusBadge}</span></td>
+    </tr>`;
+  }).join('');
+
+  // Note
+  document.getElementById('afford-note').innerHTML = `
+    💡 <b>תקרת עלות landed</b> = המקסימום שאתה יכול לשלם לסוכן (מוצר + שילוח) ועדיין להרוויח ₪${minProfit} אחרי פרסום.<br>
+    אם העלות הנוכחית מתחת לתקרה — אתה בטווח. אם מעל — צריך להוריד עלות או להעלות מחיר מכירה.
+  `;
+
+  // Multiplier table
+  const multTbody = document.getElementById('multiplier-tbody');
+  let passCount3x = 0;
+
+  multTbody.innerHTML = marketData.map((m, i) => {
+    const landedILS = m.currentLanded * s.rate;
+    const x3 = Math.round(landedILS * 3);
+    const x4 = Math.round(landedILS * 4);
+    const x5 = Math.round(landedILS * 5);
+    const x6 = Math.round(landedILS * 6);
+    const sellPrice = m.sellPrice;
+    const actualMultiplier = landedILS > 0 ? (sellPrice / landedILS) : 0;
+
+    const pass3 = sellPrice >= x3;
+    if (pass3) passCount3x++;
+
+    let diagBadge, diagClass;
+    if (actualMultiplier >= 5) { diagBadge = '🔥 x' + actualMultiplier.toFixed(1) + ' — מעולה'; diagClass = 'badge-green'; }
+    else if (actualMultiplier >= 4) { diagBadge = '✅ x' + actualMultiplier.toFixed(1) + ' — טוב'; diagClass = 'badge-green'; }
+    else if (actualMultiplier >= 3) { diagBadge = '⚠️ x' + actualMultiplier.toFixed(1) + ' — מינימום'; diagClass = 'badge-yellow'; }
+    else if (actualMultiplier >= 2) { diagBadge = '😐 x' + actualMultiplier.toFixed(1) + ' — חלש'; diagClass = 'badge-yellow'; }
+    else { diagBadge = '❌ x' + actualMultiplier.toFixed(1) + ' — הפסדי'; diagClass = 'badge-red'; }
+
+    const x3class = sellPrice >= x3 ? 'highlight-green' : 'highlight-red';
+    const x4class = sellPrice >= x4 ? 'highlight-green' : 'highlight-red';
+    const x5class = sellPrice >= x5 ? 'highlight-green' : 'highlight-red';
+    const x6class = sellPrice >= x6 ? 'highlight-green' : 'highlight-red';
+
+    return `<tr>
+      <td><b>${m.name}</b></td>
+      <td><input type="number" value="${m.currentLanded}" step="1" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'Heebo';font-size:13px;text-align:center;" onchange="updateMarketLanded(${i},this.value)"></td>
+      <td>₪${landedILS.toFixed(0)}</td>
+      <td class="${x3class}">₪${x3}</td>
+      <td class="${x4class}">₪${x4}</td>
+      <td class="${x5class}">₪${x5}</td>
+      <td class="${x6class}">₪${x6}</td>
+      <td><input type="number" value="${sellPrice}" step="10" style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--accent-light);padding:6px 10px;border-radius:6px;font-family:'Heebo';font-size:14px;text-align:center;font-weight:700;" onchange="updateMarketSellPrice(${i},this.value)"></td>
+      <td style="font-size:18px;font-weight:800;color:${actualMultiplier>=3?'var(--green)':actualMultiplier>=2?'var(--yellow)':'var(--red)'};">x${actualMultiplier.toFixed(1)}</td>
+      <td><span class="badge ${diagClass}">${diagBadge}</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('multiplier-note').innerHTML = `
+    💡 <b>${passCount3x}/${marketData.length}</b> מוצרים עוברים את כלל ה-3x במודל דרופשיפינג.<br>
+    <span style="color:var(--text-muted);">ירוק = מחיר השוק מאפשר את המכפיל הזה. אדום = צריך למכור מעל מחיר השוק כדי להגיע למכפיל.</span>
+  `;
+
+  // Drop vs Inventory table
+  const bulkRate = parseFloat(document.getElementById('m_bulk_rate').value) || 5;
+  const warehouse = parseFloat(document.getElementById('m_warehouse').value) || 500;
+  const localShip = parseFloat(document.getElementById('m_local_ship').value) || 30;
+  const diTbody = document.getElementById('dropvsinv-tbody');
+
+  let totalSavings = 0;
+  diTbody.innerHTML = marketData.map(m => {
+    const dropLanded = m.currentLanded;
+    const dropLandedILS = dropLanded * s.rate;
+    const sellPrice = m.sellPrice;
+    const dropMult = dropLandedILS > 0 ? (sellPrice / dropLandedILS) : 0;
+
+    const invShipping = m.weightKg * bulkRate;
+    const invLanded = m.productCost + invShipping;
+    const invLandedILS = invLanded * s.rate + localShip; // add local shipping for inventory model
+    const invMult = invLandedILS > 0 ? (sellPrice / invLandedILS) : 0;
+
+    const savingPerUnit = dropLandedILS - invLandedILS;
+    totalSavings += savingPerUnit;
+
+    return `<tr>
+      <td><b>${m.name}</b></td>
+      <td>${m.weightKg} ק�ג</td>
+      <td>$${m.productCost}</td>
+      <td style="color:var(--red);">$${dropLanded} (₪${dropLandedILS.toFixed(0)})</td>
+      <td style="font-weight:700;color:${dropMult>=3?'var(--green)':dropMult>=2?'var(--yellow)':'var(--red)'};">x${dropMult.toFixed(1)}</td>
+      <td style="color:var(--green);">$${invLanded.toFixed(0)} (₪${invLandedILS.toFixed(0)})</td>
+      <td style="font-weight:700;color:${invMult>=3?'var(--green)':invMult>=2?'var(--yellow)':'var(--red)'};">x${invMult.toFixed(1)}</td>
+      <td style="font-weight:600;color:var(--green);">₪${savingPerUnit.toFixed(0)} ליחידה</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('dropvsinv-note').innerHTML = `
+    💡 <b>חיסכון ממוצע במעבר למלאי: ₪${(totalSavings/marketData.length).toFixed(0)} ליחידה.</b><br>
+    במלאי נוספת עלות אחסון (₪${warehouse}/חודש) ושילוח ללקוח (₪${localShip}/הזמנה), אבל עלות השילוח מסין צונחת מ-$17-18/ק"ג ל-$${bulkRate}/ק"ג.
+  `;
+
+  // Bundle & Upsell — render with new mix-and-match builder
+  renderBundleBuilder();
+  recalcBundle();
+
+  // Summary
+  const summary = document.getElementById('market-summary');
+  let summaryHTML = '<div class="grid-2">';
+
+  marketData.forEach(m => {
+    const sellPrice = m.sellPrice || 0;
+    const landedILS = m.currentLanded * s.rate;
+    const marginRaw = sellPrice > 0 ? ((sellPrice - landedILS) / sellPrice * 100) : 0;
+
+    const vatAmount = sellPrice * (s.vat / (100 + s.vat));
+    const ccFee = sellPrice * (s.cc_fee / 100);
+    const returnCost = sellPrice * (s.return_rate / 100);
+    const overheadPerUnit = vatAmount + ccFee + returnCost;
+    const maxLandedUSD = (sellPrice - overheadPerUnit - mCac - minProfit) / s.rate;
+    const isFeasible = maxLandedUSD >= m.currentLanded;
+
+    const positionPct = m.high > m.low ? ((sellPrice - m.low) / (m.high - m.low) * 100) : 50;
+
+    summaryHTML += `
+    <div class="stat-card" style="text-align:right; padding:20px;">
+      <div style="font-size:15px;font-weight:600;margin-bottom:8px;">${m.name}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;color:var(--text-muted);">מחיר מכירה שלך</span>
+        <span style="font-size:16px;font-weight:700;color:var(--accent-light);">₪${sellPrice}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:12px;color:var(--text-muted);">טווח שוק</span>
+        <span style="font-size:13px;">₪${m.low} — ₪${m.high}</span>
+      </div>
+      <div class="progress-bar" style="margin:8px 0;">
+        <div class="progress-fill" style="width:${Math.min(100,Math.max(0,positionPct))}%;background:var(--accent);"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:10px;">
+        <span>₪${m.low}</span><span>₪${m.high}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="font-size:12px;color:var(--text-muted);">מרווח גולמי</span>
+        <span style="font-size:13px;font-weight:600;color:${marginRaw>40?'var(--green)':marginRaw>20?'var(--yellow)':'var(--red)'};">${marginRaw.toFixed(0)}%</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;">
+        <span style="font-size:12px;color:var(--text-muted);">כדאיות</span>
+        <span class="badge ${isFeasible?'badge-green':'badge-red'}">${isFeasible?'✅ כדאי':'❌ לא כדאי'}</span>
+      </div>
+    </div>`;
+  });
+
+  summaryHTML += '</div>';
+  summaryHTML += `<div style="margin-top:20px;padding:16px;background:var(--bg);border-radius:10px;text-align:center;">
+    <span style="font-size:28px;font-weight:700;color:${feasibleCount>=4?'var(--green)':feasibleCount>=2?'var(--yellow)':'var(--red)'};">${feasibleCount}/${totalProducts}</span>
+    <span style="font-size:15px;color:var(--text-muted);margin-right:8px;">מוצרים כדאיים ברמת הרווח שהגדרת</span>
+  </div>`;
+
+  summary.innerHTML = summaryHTML;
+}
+
+// ===== RECALC ALL =====
+function recalcAll() {
+  // Sync settings
+  const rate = document.getElementById('exchangeRate').value;
+  document.getElementById('s_exchange').value = rate;
+  const vat = document.getElementById('vatRate').value;
+  document.getElementById('s_vat').value = vat;
+
+  updateFixedTotal();
+  recalcAgents();
+  recalcProfit();
+  buildScenarioTables();
+  recalcPnL();
+  recalcMarket();
+}
+
+// Init
+init();
+</script>
+
+</body>
+</html>
