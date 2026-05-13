@@ -906,45 +906,6 @@
       </div>
     </details>
 
-    <details class="section-collapse">
-      <summary>מה אם מלאי? -- השוואת דרופ מול מלאי</summary>
-      <div class="section-body">
-        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">שילוח מטען (bulk) עולה $3-6/ק"ג במקום $17-18/ק"ג. איך זה משנה את המכפילים?</p>
-        <div class="grid-3" style="margin-bottom:16px;">
-          <div class="form-group">
-            <label>עלות שילוח bulk לק"ג ($)</label>
-            <input type="number" id="m_bulk_rate" value="5" step="0.5" onchange="recalcMarket()">
-          </div>
-          <div class="form-group">
-            <label>עלות מחסן/אחסון חודשי (&#8362;)</label>
-            <input type="number" id="m_warehouse" value="500" step="100" onchange="recalcMarket()">
-          </div>
-          <div class="form-group">
-            <label>שילוח ללקוח ישראלי (&#8362;)</label>
-            <input type="number" id="m_local_ship" value="30" step="5" onchange="recalcMarket()">
-          </div>
-        </div>
-        <div class="table-scroll-wrapper">
-          <table id="dropvsinv-table">
-            <thead>
-              <tr>
-                <th>מוצר</th>
-                <th>משקל (ק"ג)</th>
-                <th>מוצר ($)</th>
-                <th style="color:var(--red)">Drop landed ($)</th>
-                <th style="color:var(--red)">Drop מכפיל</th>
-                <th style="color:var(--green)">מלאי landed ($)</th>
-                <th style="color:var(--green)">מלאי מכפיל</th>
-                <th>חיסכון ליחידה</th>
-              </tr>
-            </thead>
-            <tbody id="dropvsinv-tbody"></tbody>
-          </table>
-        </div>
-        <div class="note" id="dropvsinv-note"></div>
-      </div>
-    </details>
-
     <div class="card">
       <h2>סיכום -- האם המחירים שלי תחרותיים?</h2>
       <div id="market-summary"></div>
@@ -1227,9 +1188,6 @@ function saveState() {
       marketInputs: {
         m_min_profit: document.getElementById('m_min_profit').value,
         m_cac: document.getElementById('m_cac').value,
-        m_bulk_rate: document.getElementById('m_bulk_rate').value,
-        m_warehouse: document.getElementById('m_warehouse').value,
-        m_local_ship: document.getElementById('m_local_ship').value,
       },
       marketSellPrices: marketData.map(function(m){ return m.sellPrice; }),
       marketLanded: marketData.map(function(m){ return m.currentLanded; }),
@@ -1278,9 +1236,6 @@ function loadState() {
       var mi = state.marketInputs;
       if (mi.m_min_profit) document.getElementById('m_min_profit').value = mi.m_min_profit;
       if (mi.m_cac) document.getElementById('m_cac').value = mi.m_cac;
-      if (mi.m_bulk_rate) document.getElementById('m_bulk_rate').value = mi.m_bulk_rate;
-      if (mi.m_warehouse) document.getElementById('m_warehouse').value = mi.m_warehouse;
-      if (mi.m_local_ship) document.getElementById('m_local_ship').value = mi.m_local_ship;
     }
     if (state.marketSellPrices && Array.isArray(state.marketSellPrices)) {
       state.marketSellPrices.forEach(function(p, i) { if (marketData[i]) marketData[i].sellPrice = p; });
@@ -2200,41 +2155,6 @@ function recalcMarket() {
   }).join('');
 
   document.getElementById('multiplier-note').innerHTML = '<b>' + passCount3x + '/' + marketData.length + '</b> מוצרים עוברים את כלל ה-3x במודל דרופשיפינג.<br><span style="color:var(--text-muted);">ירוק = מחיר השוק מאפשר את המכפיל הזה. אדום = צריך למכור מעל מחיר השוק כדי להגיע למכפיל.</span>';
-
-  // Drop vs Inventory table
-  var bulkRate = parseFloat(document.getElementById('m_bulk_rate').value) || 5;
-  var warehouse = parseFloat(document.getElementById('m_warehouse').value) || 500;
-  var localShip = parseFloat(document.getElementById('m_local_ship').value) || 30;
-  var diTbody = document.getElementById('dropvsinv-tbody');
-
-  var totalSavings = 0;
-  diTbody.innerHTML = marketData.map(function(m) {
-    var dropLanded = m.currentLanded;
-    var dropLandedILS = dropLanded * s.rate;
-    var sellPrice = m.sellPrice;
-    var dropMult = dropLandedILS > 0 ? (sellPrice / dropLandedILS) : 0;
-
-    var invShipping = m.weightKg * bulkRate;
-    var invLanded = m.productCost + invShipping;
-    var invLandedILS = invLanded * s.rate + localShip;
-    var invMult = invLandedILS > 0 ? (sellPrice / invLandedILS) : 0;
-
-    var savingPerUnit = dropLandedILS - invLandedILS;
-    totalSavings += savingPerUnit;
-
-    return '<tr>' +
-      '<td><b>' + m.name + '</b></td>' +
-      '<td>' + m.weightKg + ' ק"ג</td>' +
-      '<td>$' + m.productCost + '</td>' +
-      '<td style="color:var(--red);">$' + dropLanded + ' (₪' + dropLandedILS.toFixed(0) + ')</td>' +
-      '<td style="font-weight:700;color:' + (dropMult>=3?'var(--green)':dropMult>=2?'var(--yellow)':'var(--red)') + ';">x' + dropMult.toFixed(1) + '</td>' +
-      '<td style="color:var(--green);">$' + invLanded.toFixed(0) + ' (₪' + invLandedILS.toFixed(0) + ')</td>' +
-      '<td style="font-weight:700;color:' + (invMult>=3?'var(--green)':invMult>=2?'var(--yellow)':'var(--red)') + ';">x' + invMult.toFixed(1) + '</td>' +
-      '<td style="font-weight:600;color:var(--green);">₪' + savingPerUnit.toFixed(0) + ' ליחידה</td>' +
-    '</tr>';
-  }).join('');
-
-  document.getElementById('dropvsinv-note').innerHTML = '<b>חיסכון ממוצע במעבר למלאי: ₪' + (totalSavings/marketData.length).toFixed(0) + ' ליחידה.</b><br>במלאי נוספת עלות אחסון (₪' + warehouse + '/חודש) ושילוח ללקוח (₪' + localShip + '/הזמנה), אבל עלות השילוח מסין צונחת מ-$17-18/ק"ג ל-$' + bulkRate + '/ק"ג.';
 
   // Summary
   var summary = document.getElementById('market-summary');
