@@ -441,8 +441,9 @@
     details.section-collapse summary { padding: 14px 16px; font-size: 14px; }
     details.section-collapse .section-body { padding: 0 16px 16px; }
 
-    #bundle-builder-table { min-width: 500px; }
-    #upsell-table { min-width: 550px; }
+    #bundle-builder-table { min-width: 600px; }
+    #upsell-table { min-width: 650px; }
+    #bundles-overview-content { grid-template-columns: 1fr 1fr !important; }
     #bundle-results { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
 
     .pnl-row-header { font-size: 12px; }
@@ -458,6 +459,7 @@
     table { font-size: 11px; }
     th, td { padding: 6px 8px; }
     #bundle-results { grid-template-columns: 1fr !important; }
+    #bundles-overview-content { grid-template-columns: 1fr !important; }
     .stat-card .value { font-size: 18px; }
   }
 </style>
@@ -487,6 +489,7 @@
   <div class="tab" onclick="switchTab('calc')"><span>&#129518;</span> <span class="tab-text">רווחיות</span></div>
   <div class="tab" onclick="switchTab('pnl')"><span>&#128203;</span> <span class="tab-text">דוח חודשי</span></div>
   <div class="tab" onclick="switchTab('market')"><span>&#127978;</span> <span class="tab-text">מחקר שוק</span></div>
+  <div class="tab" onclick="switchTab('bundles')"><span>&#128230;</span> <span class="tab-text">בנדלים ואפסלים</span></div>
 </div>
 
 <div class="content">
@@ -942,6 +945,20 @@
       </div>
     </details>
 
+    <div class="card">
+      <h2>סיכום -- האם המחירים שלי תחרותיים?</h2>
+      <div id="market-summary"></div>
+    </div>
+  </div>
+
+  <!-- TAB 6: Bundles & Upsells -->
+  <div id="tab-bundles" class="tab-content">
+
+    <div class="card" id="bundles-overview">
+      <h2>סיכום הזמנה -- בנדל + אפסלים</h2>
+      <div id="bundles-overview-content" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;"></div>
+    </div>
+
     <details class="section-collapse" open>
       <summary>בניית בנדלים -- מכירה בחבילות</summary>
       <div class="section-body">
@@ -971,6 +988,7 @@
                 <th>כמות בבנדל</th>
                 <th>עלות מוצרים ($)</th>
                 <th>משקל סה"כ (ק"ג)</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="bundle-builder-tbody"></tbody>
@@ -980,9 +998,13 @@
                 <td id="bb-total-qty">0</td>
                 <td id="bb-total-cost">$0</td>
                 <td id="bb-total-weight">0 ק"ג</td>
+                <td></td>
               </tr>
             </tfoot>
           </table>
+        </div>
+        <div style="margin-top:10px;">
+          <button class="btn btn-sm" onclick="addBundleProduct()">+ הוסף מוצר לבנדל</button>
         </div>
 
         <div class="grid-2" style="margin-top:20px;">
@@ -1005,7 +1027,7 @@
       </div>
     </details>
 
-    <details class="section-collapse">
+    <details class="section-collapse" open>
       <summary>אפסלים בצ'קאאוט -- הגדלת סל</summary>
       <div class="section-body">
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">
@@ -1023,6 +1045,7 @@
                 <th>מחיר אפסל (&#8362;)</th>
                 <th>עלות שילוח נוספת (&#8362;)</th>
                 <th>רווח מהאפסל (&#8362;)</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id="upsell-tbody"></tbody>
@@ -1032,18 +1055,17 @@
                 <td id="upsell-total-price" style="color:var(--accent-light);">&#8362;0</td>
                 <td id="upsell-total-shipcost">&#8362;0</td>
                 <td id="upsell-total-profit" style="color:var(--green);">&#8362;0</td>
+                <td></td>
               </tr>
             </tfoot>
           </table>
         </div>
+        <div style="margin-top:10px;">
+          <button class="btn btn-sm" onclick="addUpsellItem()">+ הוסף מוצר</button>
+        </div>
         <div id="upsell-summary" style="margin-top:16px;"></div>
       </div>
     </details>
-
-    <div class="card">
-      <h2>סיכום -- האם המחירים שלי תחרותיים?</h2>
-      <div id="market-summary"></div>
-    </div>
   </div>
 
 </div>
@@ -1150,7 +1172,7 @@ const marketData = [
   },
 ];
 
-const bundleProducts = [
+let bundleProducts = [
   { id: 'sheets', name: 'סט מצעים (במבוק / טנסל)', productCost: 42.30, weightKg: 2.8 },
   { id: 'pillow', name: 'כרית Memory Foam', productCost: 9, weightKg: 1.5 },
   { id: 'blanket', name: 'שמיכת קיץ קלה (זוגית)', productCost: 36, weightKg: 2.0 },
@@ -1167,7 +1189,7 @@ const presetBundles = [
   { sheets: 1, pillow: 2, blanket: 1 },
 ];
 
-const upsellItems = [
+let upsellItems = [
   { id: 'spray', name: 'ספריי כרית לבנדר', productCost: 3, weightKg: 0.3, sellPrice: 49 },
   { id: 'mask', name: 'מסכת שינה (משי)', productCost: 5, weightKg: 0.15, sellPrice: 79 },
   { id: 'extra_case', name: 'ציפית נוספת (במבוק)', productCost: 5, weightKg: 0.2, sellPrice: 59 },
@@ -1217,6 +1239,8 @@ function saveState() {
       upsellPrices: upsellItems.map(function(u){ return u.sellPrice; }),
       upsellActive: upsellItems.map(function(u){ return !!u.active; }),
       agentProduct: document.getElementById('agent_product').value,
+      bundleProductsData: bundleProducts.map(function(bp){ return { id: bp.id, name: bp.name, productCost: bp.productCost, weightKg: bp.weightKg }; }),
+      upsellItemsData: upsellItems.map(function(u){ return { id: u.id, name: u.name, productCost: u.productCost, weightKg: u.weightKg, sellPrice: u.sellPrice, active: !!u.active }; }),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch(e) { /* silent */ }
@@ -1274,6 +1298,12 @@ function loadState() {
       state.upsellActive.forEach(function(a, i) { if (upsellItems[i]) upsellItems[i].active = a; });
     }
     if (state.agentProduct) document.getElementById('agent_product').value = state.agentProduct;
+    if (state.bundleProductsData && Array.isArray(state.bundleProductsData)) {
+      bundleProducts = state.bundleProductsData;
+    }
+    if (state.upsellItemsData && Array.isArray(state.upsellItemsData)) {
+      upsellItems = state.upsellItemsData;
+    }
     return true;
   } catch(e) { return false; }
 }
@@ -1292,6 +1322,7 @@ function init() {
   renderBundleBuilder();
   recalcAll();
   buildScenarioTables();
+  recalcBundle();
 }
 
 // ===== TABS =====
@@ -1299,7 +1330,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
-  var tabNames = ['settings','agents','calc','pnl','market'];
+  var tabNames = ['settings','agents','calc','pnl','market','bundles'];
   var idx = tabNames.indexOf(name);
   if (idx >= 0) document.querySelectorAll('.tab')[idx].classList.add('active');
   recalcAll();
@@ -1393,6 +1424,7 @@ function recalcAgents() {
   }, { name: '', cost: Infinity });
 
   document.getElementById('agent-note').innerHTML = '<b>הכי זול:</b> ' + cheapest.name + ' -- $' + cheapest.cost.toFixed(2) + ' (₪' + (cheapest.cost*s.rate).toFixed(0) + ')';
+  saveState();
 }
 
 // ===== PROFITABILITY CALC =====
@@ -1409,6 +1441,7 @@ function fillFromAgent() {
     document.getElementById('c_landed_usd').value = (data.zach.product + (data.zach.ship_door || 0)).toFixed(2);
   }
   recalcProfit();
+  saveState();
 }
 
 function calcUnitProfit(sellPrice, landedUSD, settings) {
@@ -1490,6 +1523,7 @@ function recalcProfit() {
     '<tr><td><b>רווח אחרי פרסום (CAC ₪' + s.cac + ')</b></td><td class="' + (r.afterAd>=0?'pnl-positive':'pnl-negative') + '"><b>₪' + r.afterAd.toFixed(0) + '</b></td><td><b>' + pct(r.afterAd,sellPrice) + '%</b></td></tr>';
 
   renderGauge(r.netProfit, r.afterAd, r.margin);
+  saveState();
 }
 
 function renderGauge(netProfit, afterAd, margin) {
@@ -1661,16 +1695,19 @@ function recalcPnL() {
 
   document.getElementById('pnl-verdict').textContent = verdict;
   document.getElementById('pnl-verdict-card').className = 'stat-card ' + verdictColor;
+  saveState();
 }
 
 // ===== MARKET RESEARCH =====
 function updateMarketSellPrice(idx, val) {
   marketData[idx].sellPrice = parseFloat(val) || 0;
   recalcMarket();
+  saveState();
 }
 function updateMarketLanded(idx, val) {
   marketData[idx].currentLanded = parseFloat(val) || 0;
   recalcMarket();
+  saveState();
 }
 
 // ===== BUNDLE BUILDER =====
@@ -1680,12 +1717,14 @@ function loadPresetBundle(idx) {
   bundleQty = Object.assign({}, presetBundles[idx]);
   renderBundleBuilder();
   recalcBundle();
+  saveState();
 }
 
 function resetBundle() {
   bundleQty = {};
   renderBundleBuilder();
   recalcBundle();
+  saveState();
 }
 
 function setBundleQty(productId, val) {
@@ -1693,6 +1732,7 @@ function setBundleQty(productId, val) {
   if (q > 0) bundleQty[productId] = q;
   else delete bundleQty[productId];
   recalcBundle();
+  saveState();
 }
 
 function renderBundleBuilder() {
@@ -1703,12 +1743,13 @@ function renderBundleBuilder() {
     var totalCost = (p.productCost * qty);
     var totalWeight = (p.weightKg * qty);
     return '<tr style="' + (qty > 0 ? 'background:rgba(139,92,246,0.08);' : '') + '">' +
-      '<td><b>' + p.name + '</b></td>' +
-      '<td>$' + p.productCost + '</td>' +
-      '<td>' + p.weightKg + ' ק"ג</td>' +
+      '<td><input type="text" value="' + p.name + '" style="width:160px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;" onchange="updateBundleProductName(\'' + p.id + '\',this.value)"></td>' +
+      '<td><input type="number" value="' + p.productCost + '" step="0.5" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;text-align:center;" onchange="updateBundleProductCost(\'' + p.id + '\',this.value)"></td>' +
+      '<td><input type="number" value="' + p.weightKg + '" step="0.1" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;text-align:center;" onchange="updateBundleProductWeight(\'' + p.id + '\',this.value)"></td>' +
       '<td><input type="number" min="0" max="10" value="' + qty + '" style="width:60px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:14px;text-align:center;" onchange="setBundleQty(\'' + p.id + '\',this.value)"></td>' +
       '<td>' + (qty > 0 ? '$' + totalCost.toFixed(1) : '--') + '</td>' +
       '<td>' + (qty > 0 ? totalWeight.toFixed(2) + ' ק"ג' : '--') + '</td>' +
+      '<td><button class="remove-btn" onclick="removeBundleProduct(\'' + p.id + '\')" title="הסר מוצר">✕</button></td>' +
     '</tr>';
   }).join('');
 }
@@ -1832,6 +1873,8 @@ function recalcBundle() {
   }
 
   renderUpsells();
+  updateBundlesOverview();
+  saveState();
 }
 
 function renderUpsells() {
@@ -1860,12 +1903,13 @@ function renderUpsells() {
 
     return '<tr style="' + (u.active ? 'background:rgba(16,185,129,0.08);' : '') + '">' +
       '<td><input type="checkbox" ' + checked + ' onchange="toggleUpsell(' + i + ',this.checked)" style="width:18px;height:18px;cursor:pointer;"></td>' +
-      '<td><b>' + u.name + '</b></td>' +
-      '<td>$' + u.productCost + '</td>' +
-      '<td>' + u.weightKg + ' ק"ג</td>' +
+      '<td><input type="text" value="' + u.name + '" style="width:140px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;" onchange="updateUpsellName(' + i + ',this.value)"></td>' +
+      '<td><input type="number" value="' + u.productCost + '" step="0.5" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;text-align:center;" onchange="updateUpsellCost(' + i + ',this.value)"></td>' +
+      '<td><input type="number" value="' + u.weightKg + '" step="0.1" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;text-align:center;" onchange="updateUpsellWeight(' + i + ',this.value)"></td>' +
       '<td><input type="number" value="' + u.sellPrice + '" step="5" style="width:70px;background:var(--bg);border:1px solid var(--border);color:var(--accent-light);padding:6px;border-radius:6px;font-family:\'Heebo\';font-size:13px;text-align:center;font-weight:700;" onchange="updateUpsellPrice(' + i + ',this.value)"></td>' +
       '<td>₪' + shipCostILS.toFixed(0) + '</td>' +
       '<td style="font-weight:700;color:' + (profit>=0?'var(--green)':'var(--red)') + ';">₪' + profit.toFixed(0) + '</td>' +
+      '<td><button class="remove-btn" onclick="removeUpsellItem(' + i + ')" title="הסר מוצר">✕</button></td>' +
     '</tr>';
   }).join('');
 
@@ -1907,11 +1951,151 @@ function renderUpsells() {
 function toggleUpsell(idx, checked) {
   upsellItems[idx].active = checked;
   recalcBundle();
+  saveState();
 }
 
 function updateUpsellPrice(idx, val) {
   upsellItems[idx].sellPrice = parseFloat(val) || 0;
   recalcBundle();
+  saveState();
+}
+
+// ===== BUNDLE PRODUCT EDITING =====
+function updateBundleProductCost(productId, val) {
+  var p = bundleProducts.find(function(bp) { return bp.id === productId; });
+  if (p) p.productCost = parseFloat(val) || 0;
+  renderBundleBuilder();
+  recalcBundle();
+}
+
+function updateBundleProductWeight(productId, val) {
+  var p = bundleProducts.find(function(bp) { return bp.id === productId; });
+  if (p) p.weightKg = parseFloat(val) || 0;
+  renderBundleBuilder();
+  recalcBundle();
+}
+
+function updateBundleProductName(productId, val) {
+  var p = bundleProducts.find(function(bp) { return bp.id === productId; });
+  if (p) p.name = val;
+  saveState();
+}
+
+function addBundleProduct() {
+  bundleProducts.push({ id: 'custom_' + Date.now(), name: 'מוצר חדש', productCost: 5, weightKg: 0.5 });
+  renderBundleBuilder();
+  recalcBundle();
+}
+
+function removeBundleProduct(productId) {
+  bundleProducts = bundleProducts.filter(function(p) { return p.id !== productId; });
+  delete bundleQty[productId];
+  renderBundleBuilder();
+  recalcBundle();
+}
+
+// ===== UPSELL EDITING =====
+function updateUpsellCost(idx, val) {
+  upsellItems[idx].productCost = parseFloat(val) || 0;
+  recalcBundle();
+}
+
+function updateUpsellWeight(idx, val) {
+  upsellItems[idx].weightKg = parseFloat(val) || 0;
+  recalcBundle();
+}
+
+function updateUpsellName(idx, val) {
+  upsellItems[idx].name = val;
+  saveState();
+}
+
+function addUpsellItem() {
+  upsellItems.push({ id: 'custom_' + Date.now(), name: 'מוצר חדש', productCost: 5, weightKg: 0.2, sellPrice: 49, active: false });
+  recalcBundle();
+}
+
+function removeUpsellItem(idx) {
+  upsellItems.splice(idx, 1);
+  recalcBundle();
+}
+
+// ===== BUNDLES OVERVIEW =====
+function updateBundlesOverview() {
+  var el = document.getElementById('bundles-overview-content');
+  if (!el) return;
+
+  var s = getSettings();
+  var fixedShip = 4;
+  var perKg = 17.23;
+
+  // Bundle totals
+  var totalProductCost = 0, totalWeight = 0, totalQty = 0;
+  bundleProducts.forEach(function(p) {
+    var qty = bundleQty[p.id] || 0;
+    if (qty > 0) {
+      totalProductCost += p.productCost * qty;
+      totalWeight += p.weightKg * qty;
+      totalQty += qty;
+    }
+  });
+
+  var bundleSellPrice = parseFloat(document.getElementById('bb_sell_price').value) || 0;
+  var cac = parseFloat(document.getElementById('bb_cac').value) || 80;
+
+  var bundleShipUSD = totalQty > 0 ? (fixedShip + totalWeight * perKg) : 0;
+  var bundleLandedUSD = totalProductCost + bundleShipUSD;
+  var bundleLandedILS = bundleLandedUSD * s.rate;
+
+  // Upsell totals
+  var upsellRevenue = 0, upsellCostUSD = 0, upsellShipUSD = 0;
+  upsellItems.forEach(function(u) {
+    if (u.active) {
+      upsellRevenue += u.sellPrice;
+      upsellCostUSD += u.productCost;
+      upsellShipUSD += u.weightKg * perKg;
+    }
+  });
+  var upsellCostILS = upsellCostUSD * s.rate;
+  var upsellShipILS = upsellShipUSD * s.rate;
+
+  var totalOrderValue = bundleSellPrice + upsellRevenue;
+  var totalProductCostILS = bundleLandedILS + upsellCostILS + upsellShipILS;
+  var totalShippingILS = bundleShipUSD * s.rate + upsellShipILS;
+
+  var vat = totalOrderValue * (s.vat / (100 + s.vat));
+  var cc = totalOrderValue * (s.cc_fee / 100);
+  var returns = totalOrderValue * (s.return_rate / 100);
+
+  var netProfit = totalOrderValue - totalProductCostILS - vat - cc - returns - cac;
+  var isProfitable = netProfit > 0;
+
+  if (totalQty === 0 && upsellRevenue === 0) {
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px;">בחר מוצרים בבנדל או הפעל אפסלים כדי לראות סיכום</div>';
+    return;
+  }
+
+  el.innerHTML =
+    '<div class="stat-card" style="text-align:center;">' +
+      '<div style="font-size:11px;color:var(--text-muted);">ערך הזמנה כולל</div>' +
+      '<div style="font-size:22px;font-weight:800;color:var(--accent-light);">₪' + totalOrderValue + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">בנדל ₪' + bundleSellPrice + ' + אפסלים ₪' + upsellRevenue + '</div>' +
+    '</div>' +
+    '<div class="stat-card" style="text-align:center;">' +
+      '<div style="font-size:11px;color:var(--text-muted);">עלות מוצרים + שילוח</div>' +
+      '<div style="font-size:22px;font-weight:800;">₪' + totalProductCostILS.toFixed(0) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">שילוח ₪' + totalShippingILS.toFixed(0) + '</div>' +
+    '</div>' +
+    '<div class="stat-card" style="text-align:center;">' +
+      '<div style="font-size:11px;color:var(--text-muted);">רווח נקי (אחרי הכל)</div>' +
+      '<div style="font-size:22px;font-weight:800;color:' + (isProfitable?'var(--green)':'var(--red)') + ';">₪' + netProfit.toFixed(0) + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">כולל CAC ₪' + cac + '</div>' +
+    '</div>' +
+    '<div class="stat-card" style="text-align:center;">' +
+      '<div style="font-size:11px;color:var(--text-muted);">סטטוס</div>' +
+      '<div style="font-size:22px;font-weight:800;color:' + (isProfitable?'var(--green)':'var(--red)') + ';">' + (isProfitable ? 'רווחי' : 'הפסדי') + '</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);">' + (totalOrderValue > 0 ? (netProfit / totalOrderValue * 100).toFixed(1) + '% מרווח' : '--') + '</div>' +
+    '</div>';
 }
 
 function recalcMarket() {
@@ -2052,9 +2236,6 @@ function recalcMarket() {
 
   document.getElementById('dropvsinv-note').innerHTML = '<b>חיסכון ממוצע במעבר למלאי: ₪' + (totalSavings/marketData.length).toFixed(0) + ' ליחידה.</b><br>במלאי נוספת עלות אחסון (₪' + warehouse + '/חודש) ושילוח ללקוח (₪' + localShip + '/הזמנה), אבל עלות השילוח מסין צונחת מ-$17-18/ק"ג ל-$' + bulkRate + '/ק"ג.';
 
-  renderBundleBuilder();
-  recalcBundle();
-
   // Summary
   var summary = document.getElementById('market-summary');
   var summaryHTML = '<div class="grid-2">';
@@ -2108,6 +2289,7 @@ function recalcMarket() {
   '</div>';
 
   summary.innerHTML = summaryHTML;
+  saveState();
 }
 
 // ===== RECALC ALL =====
