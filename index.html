@@ -742,8 +742,23 @@
       <div id="profit-gauge"></div>
     </div>
 
-    <!-- Scenario tables — collapsible -->
+    <!-- Price Recommender -->
     <details class="section-collapse" open>
+      <summary>מחשבון מחיר מומלץ</summary>
+      <div class="section-body">
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px;">
+          <div class="form-group" style="margin:0;flex:1;min-width:140px;">
+            <label>עלות landed שלך ($)</label>
+            <input type="number" id="rec_landed_cost" placeholder="לדוגמה: 85" step="1" oninput="calcPriceRecommendation()">
+          </div>
+          <div id="rec-result" style="flex:3;min-width:260px;"></div>
+        </div>
+        <div id="rec-detail" style="margin-bottom:10px;"></div>
+      </div>
+    </details>
+
+    <!-- Scenario tables — collapsible -->
+    <details class="section-collapse">
       <summary>טבלאות תרחישים</summary>
       <div class="section-body">
         <h3 style="margin-bottom:8px;">רווח נטו ליחידה (לפני פרסום)</h3>
@@ -1194,6 +1209,7 @@ function saveState() {
       bundleQty: bundleQty,
       bundleSellPrice: document.getElementById('bb_sell_price').value,
       bundleCac: document.getElementById('bb_cac').value,
+      recLandedCost: document.getElementById('rec_landed_cost').value,
       upsellPrices: upsellItems.map(function(u){ return u.sellPrice; }),
       upsellActive: upsellItems.map(function(u){ return !!u.active; }),
       agentProduct: document.getElementById('agent_product').value,
@@ -1246,6 +1262,7 @@ function loadState() {
     if (state.bundleQty) bundleQty = state.bundleQty;
     if (state.bundleSellPrice) document.getElementById('bb_sell_price').value = state.bundleSellPrice;
     if (state.bundleCac) document.getElementById('bb_cac').value = state.bundleCac;
+    if (state.recLandedCost) document.getElementById('rec_landed_cost').value = state.recLandedCost;
     if (state.upsellPrices && Array.isArray(state.upsellPrices)) {
       state.upsellPrices.forEach(function(p, i) { if (upsellItems[i]) upsellItems[i].sellPrice = p; });
     }
@@ -1576,6 +1593,96 @@ function buildScenarioTables() {
       '</tbody>' +
     '</table>' +
     '<div class="note" style="margin-top:16px;">החישוב מבוסס על עלות landed של $' + landed + ' (₪' + (landed*s.rate).toFixed(0) + ') ו-CAC של ₪' + s.cac + '. שנה את הנתונים בהגדרות ובמחשבון כדי לראות תרחישים שונים.</div>';
+}
+
+// ===== PRICE RECOMMENDER =====
+function calcPriceRecommendation() {
+  var costInput = parseFloat(document.getElementById('rec_landed_cost').value);
+  var resultEl = document.getElementById('rec-result');
+  var detailEl = document.getElementById('rec-detail');
+  if (!costInput || costInput <= 0) {
+    resultEl.innerHTML = '<div style="color:var(--text-muted);font-size:14px;">הזן את עלות ה-landed שלך בדולר ותקבל המלצה למחיר מכירה</div>';
+    detailEl.innerHTML = '';
+    return;
+  }
+  var s = getSettings();
+  var costILS = (costInput * s.rate).toFixed(0);
+
+  // Find price thresholds
+  var bePrice = 0, okPrice = 0, goodPrice = 0, greatPrice = 0;
+  for (var p = 50; p <= 1500; p += 1) {
+    var r = calcUnitProfit(p, costInput, s);
+    if (!bePrice && r.afterAd >= 0) bePrice = p;
+    if (!okPrice && r.afterAd >= 50) okPrice = p;
+    if (!goodPrice && r.afterAd >= 120) goodPrice = p;
+    if (!greatPrice && r.afterAd >= 200) greatPrice = p;
+  }
+
+  // Recommended price (good profit zone)
+  var recPrice = goodPrice || okPrice || bePrice;
+  var recR = recPrice ? calcUnitProfit(recPrice, costInput, s) : null;
+  var multiplier = costInput > 0 && recPrice ? (recPrice / (costInput * s.rate)).toFixed(1) : '--';
+
+  resultEl.innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;">' +
+      '<div class="stat-card green" style="text-align:center;padding:14px 10px;">' +
+        '<div style="font-size:11px;color:var(--text-muted);">מחיר מומלץ</div>' +
+        '<div style="font-size:26px;font-weight:800;color:var(--green);">₪' + (recPrice || '--') + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);">מכפיל x' + multiplier + '</div>' +
+      '</div>' +
+      '<div class="stat-card" style="text-align:center;padding:14px 10px;">' +
+        '<div style="font-size:11px;color:var(--text-muted);">רווח אחרי פרסום</div>' +
+        '<div style="font-size:22px;font-weight:700;color:var(--green);">₪' + (recR ? recR.afterAd.toFixed(0) : '--') + '</div>' +
+      '</div>' +
+      '<div class="stat-card" style="text-align:center;padding:14px 10px;">' +
+        '<div style="font-size:11px;color:var(--text-muted);">עלות בשקלים</div>' +
+        '<div style="font-size:22px;font-weight:700;">₪' + costILS + '</div>' +
+        '<div style="font-size:11px;color:var(--text-muted);">$' + costInput + '</div>' +
+      '</div>' +
+    '</div>';
+
+  // Detail table with all price options
+  var prices = [bePrice, okPrice, goodPrice, greatPrice].filter(function(p) { return p > 0; });
+  // Remove duplicates
+  var unique = [];
+  prices.forEach(function(p) { if (unique.indexOf(p) === -1) unique.push(p); });
+
+  var labels = {};
+  if (bePrice) labels[bePrice] = { name: 'ברייק-איוון', badge: 'badge-red', desc: 'רווח ₪0 אחרי פרסום' };
+  if (okPrice) labels[okPrice] = { name: 'רווח סביר', badge: 'badge-yellow', desc: 'רווח ₪50+ אחרי פרסום' };
+  if (goodPrice) labels[goodPrice] = { name: 'רווח טוב', badge: 'badge-green', desc: 'רווח ₪120+ אחרי פרסום' };
+  if (greatPrice) labels[greatPrice] = { name: 'רווח מעולה', badge: 'badge-green', desc: 'רווח ₪200+ אחרי פרסום' };
+
+  if (unique.length > 0) {
+    var rows = unique.map(function(price) {
+      var r = calcUnitProfit(price, costInput, s);
+      var l = labels[price];
+      var mult = (price / (costInput * s.rate)).toFixed(1);
+      var isRec = price === recPrice;
+      return '<tr style="' + (isRec ? 'background:rgba(16,185,129,0.1);' : '') + '">' +
+        '<td><span class="badge ' + l.badge + '">' + l.name + '</span></td>' +
+        '<td style="font-weight:700;">₪' + price + '</td>' +
+        '<td>x' + mult + '</td>' +
+        '<td>₪' + r.netProfit.toFixed(0) + '</td>' +
+        '<td style="font-weight:600;color:' + (r.afterAd >= 120 ? 'var(--green)' : r.afterAd >= 50 ? 'var(--yellow)' : 'var(--red)') + ';">₪' + r.afterAd.toFixed(0) + '</td>' +
+        '<td>' + r.margin.toFixed(0) + '%</td>' +
+      '</tr>';
+    }).join('');
+
+    detailEl.innerHTML =
+      '<div style="background:var(--bg);border-radius:10px;padding:16px;font-size:13px;">' +
+        '<div style="font-weight:600;margin-bottom:10px;">טווחי מחירים לעלות $' + costInput + ' (₪' + costILS + '):</div>' +
+        '<div class="table-scroll-wrapper">' +
+        '<table style="width:100%;font-size:13px;">' +
+          '<thead><tr><th>רמה</th><th>מחיר מכירה</th><th>מכפיל</th><th>רווח נטו</th><th>אחרי פרסום</th><th>מרווח</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+        '</div>' +
+        '<div class="note" style="margin-top:12px;">החישוב כולל: מע"מ ' + s.vat + '%, סליקה ' + s.cc_fee + '%, החזרות ' + s.return_rate + '%, CAC ₪' + s.cac + '. שנה בהגדרות.</div>' +
+      '</div>';
+  } else {
+    detailEl.innerHTML = '<div class="note" style="color:var(--red);">בעלות הזו אין מחיר מכירה ריאלי שיביא לרווח (עד ₪1500). צריך להוריד עלויות.</div>';
+  }
 }
 
 // Helper
@@ -2224,6 +2331,7 @@ function recalcAll() {
   recalcAgents();
   recalcProfit();
   buildScenarioTables();
+  calcPriceRecommendation();
   recalcPnL();
   recalcMarket();
   saveState();
